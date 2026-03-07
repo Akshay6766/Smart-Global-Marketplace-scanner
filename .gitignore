@@ -1,0 +1,68 @@
+# API Keys and Secrets - NEVER COMMIT THESE!
+api_keys_config.py
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# AWS Credentials
+.aws/
+*.pem
+*.key
+
+# Backup files
+*.backup
+*.backup[0-9]
+*.backup[0-9][0-9]
+*.bak
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Elastic Beanstalk
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Python virtual environment
+venv/
+env/
+ENV/
+.venv
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Local test files
+test_*.html
+debug_*.py
+
+# Temporary files
+*.tmp
+temp/
+tmp/

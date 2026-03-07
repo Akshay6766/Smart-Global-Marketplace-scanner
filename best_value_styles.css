@@ -1,0 +1,55 @@
+﻿/* Best Value Deal Styling */
+.best-value-product {
+    border: 3px solid #10b981 !important;
+    background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%) !important;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4) !important;
+    position: relative;
+}
+
+.best-value-banner {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    z-index: 10;
+}
+
+.best-value-icon:before {
+    content: '';
+    font-size: 18px;
+}
+
+.best-value-text {
+    text-transform: uppercase;
+}
+
+/* Adjust product card content when best value banner is present */
+.best-value-product .product-rank {
+    margin-top: 48px;
+}
+
+/* Add pulsing animation to best value banner */
+@keyframes pulse-green {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.6);
+    }
+}
+
+.best-value-banner {
+    animation: pulse-green 2s ease-in-out infinite;
+}

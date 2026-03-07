@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Product Search - Find Best Deals Worldwide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .page-container { max-width: 1200px; margin: 0 auto; }
+        .hero-section { text-align: center; margin-bottom: 60px; padding-top: 60px; }
+        .hero-title { font-size: 48px; font-weight: 700; color: white; margin-bottom: 16px; line-height: 1.2; }
+        .hero-subtitle { font-size: 18px; color: rgba(255,255,255,0.9); }
+        .search-container { max-width: 700px; margin: 0 auto; }
+        .search-box {
+            background: white;
+            border-radius: 50px;
+            padding: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-icon { font-size: 24px; margin-left: 16px; }
+        .search-input { flex: 1; border: none; outline: none; font-size: 16px; padding: 16px 8px; }
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .country-info { text-align: center; margin-top: 20px; color: white; font-size: 13px; }
+        .country-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .search-suggestions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .suggestion-chip {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .suggestion-chip:hover {
+            background: rgba(255,255,255,0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .suggestion-chip:active {
+            transform: translateY(0);
+        }
+        .ai-response-window {
+            margin-top: 24px;
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .product-card:hover { transform: translateY(-4px); }
+        .product-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 12px; }
+        .product-price { font-size: 24px; font-weight: 700; color: #667eea; margin-bottom: 12px; }
+        .product-link {
+            display: block;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 12px;
+        }
+        @media (max-width: 768px) {
+            .hero-title { font-size: 32px; }
+            .hero-subtitle { font-size: 16px; }
+            .results-grid { grid-template-columns: 1fr; }
+            .search-suggestions { gap: 8px; }
+            .suggestion-chip { font-size: 13px; padding: 8px 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="hero-section">
+            <h1 class="hero-title">Find the Best Deals<br>Across Global Marketplaces</h1>
+            <p class="hero-subtitle">AI-powered search with intelligent ranking by price, trust, and quality</p>
+        </div>
+        <div class="search-container">
+            <div class="search-box">
+                <span class="search-icon"></span>
+                <input type="text" id="searchInput" class="search-input" placeholder="What are you looking for? (e.g., I need a laptop under 50000)">
+                <button id="searchBtn" class="search-btn">Search</button>
+            </div>
+            <div class="country-info">
+                <div class="country-badge" id="countryBadge">
+                    <span id="countryFlag"></span>
+                    <span id="countryName">Detecting...</span>
+                    <span style="font-size:11px;opacity:0.8">(click to change)</span>
+                </div>
+            </div>
+            <div class="search-suggestions">
+                <span style="font-size:13px;color:rgba(255,255,255,0.8);margin-right:12px;">Try:</span>
+                <button class="suggestion-chip" onclick="quickSearch('phone under 30k')"> Phone under 30k</button>
+                <button class="suggestion-chip" onclick="quickSearch('laptop under 50k')"> Laptop under 50k</button>
+                <button class="suggestion-chip" onclick="quickSearch('headphones under 5k')"> Headphones under 5k</button>
+            </div>
+            <div class="ai-response-window" id="aiResponseWindow" style="display:none;">
+                <!-- Chat Header -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;"></span>
+                        <span style="font-weight: 600; font-size: 16px; color: #333;">AI Shopping Assistant</span>
+                    </div>
+                    <button onclick="clearAIChat()" style="background: #f0f0f0; color: #666; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Clear</button>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div id="aiChatMessages" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+                    <div id="aiResponseText" style="padding: 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; color: #333;"></div>
+                </div>
+                
+                <div id="aiResponseStatus" style="display:none; margin-bottom: 10px; color: #666; font-size: 14px; padding: 8px; background: #f0f0f0; border-radius: 6px;"><span></span> Thinking...</div>
+                
+                <!-- Quick Actions -->
+                <div id="aiQuickActions" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                    <button onclick="askAI('Show me cheaper options')" style="background: #f0f0f0; color: #667eea; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500;"> Cheaper Options</button>
+                    <button onclick="askAI('Show me premium options')" style="background: #f0f0f0; color: #667eea; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500;"> Premium</button>
+                    <button onclick="askAI('Compare top 3 products')" style="background: #f0f0f0; color: #667eea; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500;"> Compare</button>
+                    <button onclick="askAI('What are the best deals?')" style="background: #f0f0f0; color: #667eea; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500;"> Best Deals</button>
+                </div>
+                
+                <!-- Chat Input -->
+                <div style="display: flex; gap: 10px; align-items: center; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                    <input type="text" id="aiFollowUpInput" placeholder="Ask AI anything about these products..." style="flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onkeypress="if(event.key==='Enter') sendAIFollowUp()" />
+                    <button onclick="sendAIFollowUp()" style="padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Send</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sorting Controls -->
+        <div class="sorting-controls" id="sortingControls" style="display: none; max-width: 700px; margin: 20px auto; background: transparent; padding: 15px;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: center;">
+                <label style="font-weight: 600; color: white;">Sort by:</label>
+                <select id="sortBy" onchange="applySorting()" style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+                    <option value="overall_rank">Best Match</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                </select>
+                <span id="resultsCount" style="margin-left: auto; color: white; font-weight: 500;"></span>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div id="resultsGrid" class="results-grid"></div>
+        
+            
+            <!-- Pagination Controls -->
+            <div id="paginationControls" style="display: none; margin-top: 30px; text-align: center;">
+                <button onclick="goToPage(1)" id="firstPage" style="padding: 10px 15px; margin: 0 5px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">First</button>
+                <button onclick="goToPage(currentPage - 1)" id="prevPage" style="padding: 10px 15px; margin: 0 5px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Previous</button>
+                <span id="pageInfo" style="margin: 0 15px; font-weight: 600; color: #333;"></span>
+                <button onclick="goToPage(currentPage + 1)" id="nextPage" style="padding: 10px 15px; margin: 0 5px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Next</button>
+                <button onclick="goToPage(totalPages)" id="lastPage" style="padding: 10px 15px; margin: 0 5px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Last</button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
