@@ -1,4 +1,4 @@
-# Smart Product Finder - AWS Deployment
+﻿# Smart Product Finder - AWS Deployment
 
 ## What This Application Does
 
@@ -6,7 +6,7 @@ A geo-aware product search engine with:
 - Multi-country marketplace search
 - AI-powered product ranking
 - Budget-based recommendations
-- Mobile phone CPI (Consumer Price Index) scoring system
+- Mobile phone CPI (Calculated Performance Index) scoring system
 - 978 mobile phones with comprehensive specs and scores
 - Google Shopping integration
 

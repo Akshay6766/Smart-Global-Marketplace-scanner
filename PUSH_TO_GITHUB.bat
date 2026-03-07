@@ -4,8 +4,8 @@ echo PUSHING TO GITHUB
 echo ========================================
 echo.
 
-REM Navigate to project directory
-cd /d "%~dp0"
+REM Navigate to Smart-product-finder directory
+cd /d "%~dp0Smart-product-finder"
 
 echo Step 1: Initializing Git repository...
 git init

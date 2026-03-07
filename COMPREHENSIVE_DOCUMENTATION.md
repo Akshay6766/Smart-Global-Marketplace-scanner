@@ -1,4 +1,4 @@
-Smart Product Finder - Comprehensive Documentation
+﻿Smart Product Finder - Comprehensive Documentation
 Version: 2.0
 Last Updated: March 7, 2026
 Status: Production Ready
@@ -45,7 +45,7 @@ Budget-aware suggestions
 Product comparison analysis
 Mobile CPI Scoring System
 
-Proprietary Consumer Price Index for 978+ phones
+Proprietary Calculated Performance Index for 978+ phones
 Multi-factor scoring (processor, display, camera, battery, storage, connectivity)
 Objective quality assessment
 Price-to-value ratio analysis
@@ -516,7 +516,7 @@ Ranking Algorithm:
 
 overall_rank = (trust_score × 0.3) + (quality_score × 0.4) + (value_score × 0.3)
 4.1.3 mobile_cpi_generator.py - CPI Scoring System
-Purpose: Generate Consumer Price Index scores for mobile phones
+Purpose: Generate Calculated Performance Index scores for mobile phones
 
 Class: MobileCPIGenerator
 
