@@ -66,3 +66,7 @@ debug_*.py
 *.tmp
 temp/
 tmp/
+
+# API Documentation with sensitive keys
+FREE_API_OPTIONS.md
+API_ROTATION_SETUP.md
