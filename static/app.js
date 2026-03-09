@@ -8,6 +8,8 @@ let displayedResults = 12;
 let currentPage = 1;
 let totalPages = 1;
 let currentSearchParams = {};
+let currentBanners = {};  // Store banners for products
+let currentSuggestions = [];  // Store AI suggestions
 
 // API Base URL
 const API_BASE = '';
@@ -324,8 +326,22 @@ function createProductCard(product, rank) {
     
     const stars = product.product_rating ? '⭐'.repeat(Math.round(product.product_rating)) : '';
     
+    // Check if product has a banner
+    const productName = product.name || product.title;
+    const banner = currentBanners[productName];
+    
+    
     card.innerHTML = `
         ${product.is_best_value ? '<div class="best-value-badge">Best Value</div>' : ''}
+        
+        ${banner ? `
+            <div class="smart-banner ${banner.type}">
+                <div class="smart-banner-message">${banner.message}</div>
+                ${banner.details && banner.details.length > 0 ? `
+                    <div class="smart-banner-details">${banner.details.join('  ')}</div>
+                ` : ''}
+            </div>
+        ` : ''}
         
         <div class="product-rank ${rankClass}">
             <span>${rankBadge}</span>
@@ -748,6 +764,9 @@ async function performSearch() {
         return;
     }
     
+    // Parse query for budget FIRST
+    const parsed = parseNaturalQuery(query);
+    
     // Show AI response window
     const aiWindow = document.getElementById('aiResponseWindow');
     const aiText = document.getElementById('aiResponseText');
@@ -765,7 +784,7 @@ async function performSearch() {
             body: JSON.stringify({
                 message: query,
                 context: {
-                    budget: null,
+                    budget: parsed.budget,
                     country_code: currentCountry
                 }
             })
@@ -777,12 +796,32 @@ async function performSearch() {
             aiText.textContent = aiData.response;
             aiStatus.style.display = 'none';
             
-            // If AI found products, redirect or show results
-            if (aiData.products && aiData.products.length > 0) {
-                // For now, just show success message
+            // Check if AI wants to redirect (for mobile searches)
+            if (aiData.redirect && aiData.redirect_url) {
                 setTimeout(() => {
-                    aiWindow.style.display = 'none';
-                }, 2000);
+                    window.location.href = aiData.redirect_url;
+                }, 1000);
+                return;
+            }
+            
+            // If AI found products, show them
+            if (aiData.products && aiData.products.length > 0) {
+                // Store banners and suggestions
+                currentBanners = aiData.banners || {};
+                currentSuggestions = aiData.suggestions || [];
+                
+                // Show AI suggestions if available
+                if (currentSuggestions.length > 0) {
+                    aiText.innerHTML = currentSuggestions.join('<br>');
+                }
+                
+                // Display products immediately
+                displayResults({
+                    results: aiData.products,
+                    query: query,
+                    total_results: aiData.products.length
+                });
+                // Keep AI window open for personalization
                 return;
             }
         }
@@ -790,8 +829,7 @@ async function performSearch() {
         // AI failed or denied - use smart fallback
         aiText.textContent = "I'm having a bit of trouble with fancy searches right now, but let me get that data straight to you! ";
         
-        // Parse query intelligently
-        const parsed = parseNaturalQuery(query);
+        // Use already parsed query
         const finalBudget = parsed.budget;
         
         // Check if mobile search - redirect to mobile CPI page (exclude headphone/earphone)
@@ -803,14 +841,18 @@ async function performSearch() {
         if (isMobileSearch) {
             // Pass the ORIGINAL query to preserve battery/camera/RAM specs
             let redirectUrl = `/mobile?query=${encodeURIComponent(query)}`;
-            console.log('Redirecting to mobile page with full query:', query);
+            if (finalBudget) {
+                redirectUrl += `&budget=${finalBudget}`;
+            }
+            console.log('Redirecting to mobile page with full query:', query, 'budget:', finalBudget);
             setTimeout(() => window.location.href = redirectUrl, 800);
             return;
         }
         
-        // Regular search for non-mobile items
+        // Regular search for non-mobile items - keep AI window open
         setTimeout(() => {
             performRegularSearch(parsed.searchTerm, finalBudget);
+            // AI window stays open for follow-up questions
         }, 800);
         
     } catch (error) {
@@ -819,7 +861,7 @@ async function performSearch() {
         // Fallback with friendly message
         aiText.textContent = "I'm having a bit of trouble with fancy searches right now, but let me get that data straight to you! ";
         
-        const parsed = parseNaturalQuery(query);
+        // Use already parsed query (no redeclaration needed)
         const finalBudget = parsed.budget;
         
         // Check if mobile search - redirect to mobile CPI page (exclude headphone/earphone)
@@ -831,14 +873,18 @@ async function performSearch() {
         if (isMobileSearch) {
             // Pass the ORIGINAL query to preserve battery/camera/RAM specs
             let redirectUrl = `/mobile?query=${encodeURIComponent(query)}`;
-            console.log('Redirecting to mobile page with full query:', query);
+            if (finalBudget) {
+                redirectUrl += `&budget=${finalBudget}`;
+            }
+            console.log('Redirecting to mobile page with full query:', query, 'budget:', finalBudget);
             setTimeout(() => window.location.href = redirectUrl, 800);
             return;
         }
         
-        // Regular search for non-mobile items
+        // Regular search for non-mobile items - keep AI window open
         setTimeout(() => {
             performRegularSearch(parsed.searchTerm, finalBudget);
+            // AI window stays open for follow-up questions
         }, 800);
     }
 }

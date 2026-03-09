@@ -1,0 +1,108 @@
+
+        // Tab Switching Function
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (tabName === 'indexed') {
+                document.getElementById('indexedTab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            } else if (tabName === 'live') {
+                document.getElementById('liveTab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            }
+        }
+        
+        // Live Marketplace Search Function
+        async function performLiveSearch() {
+            const query = document.getElementById('liveSearchQuery').value.trim();
+            const budget = document.getElementById('liveBudget').value;
+            const country = document.getElementById('liveCountry').value;
+            
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            const statusWindow = document.getElementById('liveSearchStatus');
+            const statusText = document.getElementById('liveSearchText');
+            
+            if (statusWindow) statusWindow.style.display = 'block';
+            if (statusText) statusText.innerHTML = 'Searching for "' + query + '"...';
+            
+            showLoading('Searching live marketplaces...');
+            
+            try {
+                const searchParams = {
+                    query: query,
+                    country_code: country,
+                    page: 1,
+                    per_page: 20,
+                    sort_by: 'overall_rank',
+                    sort_order: 'desc'
+                };
+                
+                if (budget && budget > 0) {
+                    searchParams.budget = parseFloat(budget);
+                }
+                
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(searchParams)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayLiveResults(data.results, data.currency_symbol, data.country_name);
+                    if (statusText) {
+                        statusText.innerHTML = 'Found ' + data.total_results + ' products';
+                    }
+                } else {
+                    showError(data.error || 'Live search failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+        
+        // Display Live Marketplace Results
+        function displayLiveResults(results, currencySymbol, countryName) {
+            const container = document.getElementById('resultsContainer');
+            const statsSection = document.getElementById('statsSection');
+            if (statsSection) statsSection.style.display = 'none';
+            if (container) container.style.display = 'block';
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = '<div class="loading"><p>No products found</p></div>';
+                return;
+            }
+            
+            let html = '<h2>Live Results (' + results.length + ' from ' + countryName + ')</h2>';
+            
+            results.forEach(product => {
+                const getScoreBadge = (score, label) => {
+                    let badgeClass = 'score-fair';
+                    if (score >= 80) badgeClass = 'score-excellent';
+                    else if (score >= 60) badgeClass = 'score-good';
+                    else if (score < 40) badgeClass = 'score-poor';
+                    return '<span class="score-badge ' + badgeClass + '">' + label + ': ' + score + '</span>';
+                };
+                
+                html += '<div class="live-product-card">';
+                html += '<h3>' + product.title + '</h3>';
+                html += '<div><span class="marketplace-badge">' + product.source + '</span></div>';
+                html += '<div style="font-size: 1.5em; color: #28a745;">' + currencySymbol + product.price + '</div>';
+                html += '<div>' + getScoreBadge(product.trust_score, 'Trust') + getScoreBadge(product.quality_score, 'Quality') + getScoreBadge(product.value_score, 'Value') + '</div>';
+                html += '<a href="' + product.link + '" target="_blank" style="display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-top: 10px;">View Product</a>';
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+    </script>

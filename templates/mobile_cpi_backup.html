@@ -1,0 +1,1145 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache: 1772785629 --><title>Mobile Phone Search with CPI Scores</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .search-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: stretch;
+            justify-content: center;
+        }
+        
+        .search-input {
+            flex: 1 1 100%;
+            max-width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .filter-input {
+            flex: 1 1 calc(33.333% - 10px);
+            min-width: 100px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        
+        .search-input-full {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        
+        .price-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+        
+        .price-input { flex: 1; width: 50%; max-width: calc(50% - 5px); padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .cpi-input-full {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .search-btn {
+            flex: 1 1 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-sizing: border-box;
+        }
+        
+        .search-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        
+        .quick-btn {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        
+        .quick-btn:hover {
+            background: rgba(33, 136, 56, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .results-section {
+            margin-top: 20px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .phone-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            margin-left: 0;
+            margin-right: 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .phone-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        
+        .phone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .phone-info h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .phone-brand {
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .phone-price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .cpi-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .cpi-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .cpi-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .cpi-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .cpi-overall {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .cpi-overall .cpi-label,
+        .cpi-overall .cpi-score {
+            color: white;
+        }
+        
+        .specs-summary {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f1f3f4;
+            border-radius: 8px;
+        }
+        
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .spec-item {
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .spec-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .stats-section {
+            background: #e3f2fd;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px auto 30px auto;
+            max-width: 600px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            display: block;
+            position: relative;
+            left: 0;
+            right: 0;
+        }
+        
+        .stats-section h3 {
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+            
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; border-radius: 10px; }
+            .header h1 { font-size: 1.8em; }
+            .header p { font-size: 1em; }
+            .search-section { padding: 15px; }
+            .search-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: stretch;
+            justify-content: center;
+        }
+            .search-input, .filter-input {
+            flex: 1 1 calc(33.333% - 10px);
+            min-width: 100px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+            
+        .search-input-full {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        
+        .price-row { display: flex; gap: 10px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+        
+        .price-input { flex: 1; width: 50%; max-width: calc(50% - 5px); padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .cpi-input-full {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .search-btn {
+            flex: 1 1 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-sizing: border-box;
+        }
+            .quick-actions { flex-direction: column; }
+            .quick-btn { width: 100%; }
+            .phone-header { flex-direction: column; gap: 10px; }
+            .phone-info h3 { font-size: 1.1em; }
+            .phone-price { font-size: 1.3em; }
+            .cpi-scores { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .specs-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.5em; }
+            .cpi-scores { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .phone-card { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> Mobile Phone Search</h1>
+            <p>Find the best mobile phones with comprehensive CPI (Calculated Performance Index) scores</p>
+        </div>
+        
+        <div class="search-section">
+            <div class="search-form">
+                <input type="text" id="searchQuery" class="search-input-full" placeholder="What phone are you looking for? (e.g., phone under 30k)">
+                <button onclick="performAISearch()" class="search-btn">Search</button>
+            </div>
+            <div id="aiResponseWindow" style="display:none; margin-top: 15px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <!-- Chat Header -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;"></span>
+                        <span style="color: white; font-weight: 600; font-size: 16px;">AI Shopping Assistant</span>
+                    </div>
+                    <button onclick="clearAIChat()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Clear</button>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div id="aiChatMessages" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+                    <div id="aiResponseText" style="margin: 0; color: white; font-weight: 500; font-size: 15px; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 8px; margin-bottom: 10px;"></div>
+                </div>
+                
+                <div id="aiResponseStatus" style="display:none; margin-bottom: 10px; color: rgba(255,255,255,0.9); font-size: 14px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px;"><span></span> Thinking...</div>
+                
+                <!-- Quick Actions -->
+                <div id="aiQuickActions" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                    <button onclick="askAI('Show me phones with better battery')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer;"> Better Battery</button>
+                    <button onclick="askAI('Show me phones with better camera')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer;"> Better Camera</button>
+                    <button onclick="askAI('Show me cheaper options')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer;"> Cheaper</button>
+                    <button onclick="askAI('Compare top 3 phones')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer;"> Compare</button>
+                </div>
+                
+                <!-- Chat Input -->
+                <div style="display: flex; gap: 10px; align-items: center; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <input type="text" id="aiFollowUpInput" placeholder="Ask AI anything about these phones..." style="flex: 1; padding: 12px 15px; border: none; border-radius: 8px; font-size: 14px;" onkeypress="if(event.key==='Enter') sendAIFollowUp()" />
+                    <button onclick="sendAIFollowUp()" style="padding: 12px 20px; background: white; color: #667eea; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Send</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <button onclick="getTopCPIPhones()" class="quick-btn">Top CPI Phones</button>
+            <button onclick="getBestValuePhones()" class="quick-btn">Best Value</button>
+            <button onclick="getStats()" class="quick-btn">Statistics</button>
+        </div>
+        
+        <div class="sorting-controls" id="sortingControls" style="display: none; background: transparent; padding: 10px 0; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end;">
+                <label style="font-weight: 600; color: #333; font-size: 14px; background: white; padding: 6px 12px; border-radius: 15px;">Sort by:</label>
+                <select id="sortBy" onchange="applySorting()" style="padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; font-size: 13px; background: rgba(255,255,255,0.9); cursor: pointer; min-width: 180px;">
+                    <option value="overall_cpi">Overall CPI (Best)</option>
+                    <option value="price_low">Price: Low to High</option>
+                    <option value="price_high">Price: High to Low</option>
+                    <option value="battery_score">Battery Score</option>
+                    <option value="display_score">Display Score</option>
+                    <option value="camera_score">Camera Score</option>
+                    <option value="processor_score">Processor Score</option>
+                    <option value="storage_score">Storage Score</option>
+                    <option value="price_value_ratio">Best Value</option>
+                </select>
+                <span id="resultsCount" style="color: white; font-weight: 500; font-size: 13px;"></span>
+            </div>
+        </div>
+
+        <div id="statsSection" class="stats-section" style="display: none;">
+            <h3>Mobile Phone Statistics</h3>
+            <div id="statsContent" class="stats-grid" style="margin: 0 auto;"></div>
+        </div>
+        
+        <div class="results-section">
+            <div id="resultsContainer">
+                <div class="loading">
+                    <p>Search for mobile phones to see results with CPI scores</p>
+                </div>
+            </div>
+            
+            <div id="paginationControls" style="display: none; margin-top: 30px; text-align: center;">
+                <button onclick="goToPage(1)" id="firstPage" style="padding: 10px 15px; margin: 0 5px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">First</button>
+                <button onclick="goToPage(currentPage - 1)" id="prevPage" style="padding: 10px 15px; margin: 0 5px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Previous</button>
+                <span id="pageInfo" style="margin: 0 15px; font-weight: 600; color: #333;"></span>
+                <button onclick="goToPage(currentPage + 1)" id="nextPage" style="padding: 10px 15px; margin: 0 5px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Next</button>
+                <button onclick="goToPage(totalPages)" id="lastPage" style="padding: 10px 15px; margin: 0 5px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Last</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        
+        // AI Search with Smart Fallback
+        async function performAISearch() {
+            const query = document.getElementById('searchQuery').value.trim();
+            
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            // Show AI response window
+            const aiWindow = document.getElementById('aiResponseWindow');
+            const aiText = document.getElementById('aiResponseText');
+            const aiStatus = document.getElementById('aiResponseStatus');
+            
+            if (aiWindow) aiWindow.style.display = 'block';
+            if (aiText) aiText.textContent = 'Searching for the best phones...';
+            if (aiStatus) aiStatus.style.display = 'block';
+            
+            // Parse query for search term and budget
+            const parsed = parseNaturalQuery(query);
+            
+            // Hide AI status after parsing
+            if (aiStatus) aiStatus.style.display = 'none';
+            if (aiText) aiText.textContent = `Searching for "${parsed.searchTerm}"${parsed.budget ? ' under Rs.' + parsed.budget : ''}...`;
+            
+            // Call search with parsed parameters
+            await searchMobilesWithParams(parsed.searchTerm, parsed.budget);
+        }
+        
+        // Parse natural language query
+        function parseNaturalQuery(query) {
+            const lowerQuery = query.toLowerCase();
+            let budget = null;
+            
+            // Extract budget patterns
+            const budgetPatterns = [
+                /under\s+(\d+)k/i,
+                /under\s+(\d+)/i,
+                /below\s+(\d+)k/i,
+                /below\s+(\d+)/i,
+                /budget\s+(\d+)k/i,
+                /budget\s+(\d+)/i,
+                /around\s+(\d+)k/i,
+                /around\s+(\d+)/i,
+                /(\d+)k\s+budget/i,
+                /(\d+)\s+budget/i
+            ];
+            
+            for (const pattern of budgetPatterns) {
+                const match = query.match(pattern);
+                if (match) {
+                    budget = parseInt(match[1]);
+                    if (pattern.source.includes('k')) {
+                        budget = budget * 1000;
+                    }
+                    break;
+                }
+            }
+            
+            // Extract search term (remove budget-related words)
+            let searchTerm = query
+                .replace(/under\s+\d+k?/i, '')
+                .replace(/below\s+\d+k?/i, '')
+                .replace(/budget\s+\d+k?/i, '')
+                .replace(/\d+k?\s+budget/i, '')
+                .replace(/around\s+\d+k?/i, '')
+                .trim() || 'phone';
+            
+            return { searchTerm, budget };
+        }
+        
+        // Search with parsed parameters
+        async function searchMobilesWithParams(searchQuery, maxBudget) {
+            showLoading('Searching mobile phones...');
+            
+            // Store search params for sorting
+            currentSearchParams = {
+                query: searchQuery,
+                page: 1,
+                per_page: 20,
+                price_min: 0,
+                price_max: maxBudget || 999999,
+                min_cpi: 0,
+                max_results: 100
+            };
+            
+            try {
+                const response = await fetch('/api/mobile/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentSearchParams)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.results, `Search Results for "${searchQuery}"`, data.page || 1, data.total_pages || 1);
+                    
+                    // Update pagination if available
+                    if (data.page && data.total_pages) {
+                        updatePaginationButtons(data.page, data.total_pages);
+                    }
+                    
+                    // Update AI response
+                    const aiText = document.getElementById('aiResponseText');
+                    if (aiText) {
+                        aiText.textContent = `Found ${data.total_results || data.results.length} phones matching "${searchQuery}"${maxBudget ? ' under Rs.' + maxBudget.toLocaleString() : ''}`;
+                    }
+                } else {
+                    showError(data.error || 'Search failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+        
+        async function searchMobiles() {
+            const query = document.getElementById('searchQuery').value;
+            const minPrice = document.getElementById('minPrice').value || 0;
+            const maxPrice = document.getElementById('maxPrice').value || 999999;
+            const minCPI = document.getElementById('minCPI').value || 0;
+            
+            if (!query.trim()) {
+                alert('Please enter a search query');
+                return;
+            }
+            
+            showLoading('Searching mobile phones...');
+            
+            try {
+                const response = await fetch('/api/mobile/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        max_results: 20,
+                        price_min: parseFloat(minPrice),
+                        price_max: parseFloat(maxPrice),
+                        min_cpi: parseFloat(minCPI)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.results, `Search Results for "${query}"`, data.page || 1, data.total_pages || 1);
+                    if (data.page && data.total_pages) {
+                        updatePaginationButtons(data.page, data.total_pages);
+                    }
+                } else {
+                    showError(data.error || 'Search failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+        
+        async function getTopCPIPhones() {
+            currentSearchParams = {
+                query: 'phone',
+                page: 1,
+                per_page: 20,
+                sort_by: 'overall_cpi',
+                sort_order: 'desc',
+                price_min: 0,
+                price_max: 999999,
+                min_cpi: 0,
+                max_results: 100
+            };
+            
+            performSearchWithPagination(currentSearchParams);
+        }
+        
+        async function getBestValuePhones() {
+            currentSearchParams = {
+                query: 'phone',
+                page: 1,
+                per_page: 20,
+                sort_by: 'price_value_ratio',
+                sort_order: 'desc',
+                price_min: 0,
+                price_max: 999999,
+                min_cpi: 0,
+                max_results: 100
+            };
+            
+            performSearchWithPagination(currentSearchParams);
+        }
+        
+        async function getStats() {
+            try {
+                const response = await fetch('/api/mobile/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Hide results and sorting when showing stats
+                    const resultsContainer = document.getElementById('resultsContainer');
+                    const sortingControls = document.getElementById('sortingControls');
+                    if (resultsContainer) resultsContainer.style.display = 'none';
+                    if (sortingControls) sortingControls.style.display = 'none';
+                    
+                    displayStats(data.stats);
+                } else {
+                    showError(data.error || 'Failed to load statistics');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+        
+        function displayResults(results, title, page, totalPages) {
+            const container = document.getElementById('resultsContainer');
+            
+            // Hide stats section when showing results
+            const statsSection = document.getElementById('statsSection');
+            if (statsSection) statsSection.style.display = 'none';
+            
+            // Show results container
+            if (container) container.style.display = 'block';
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = `
+                    <div class="loading">
+                        <p>No mobile phones found matching your criteria</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Create heading with inline pagination controls
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">${title} (Page ${page} of ${totalPages}) (${results.length} phones)</h2>`;
+            
+            // Add pagination controls inline if there are multiple pages
+            if (totalPages && totalPages > 1) {
+                html += `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button onclick="goToPage(1)" id="firstPage" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">First</button>
+                        <button onclick="goToPage(${page - 1})" id="prevPage" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">Prev</button>
+                        <span style="font-weight: 600; color: #333; font-size: 14px;">Page ${page} of ${totalPages}</span>
+                        <button onclick="goToPage(${page + 1})" id="nextPage" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">Next</button>
+                        <button onclick="goToPage(${totalPages})" id="lastPage" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">Last</button>
+                    </div>`;
+            }
+            
+            html += `</div>`;
+            
+            results.forEach(phone => {
+                const cpi = phone.cpi_scores;
+                
+                
+                const googleShoppingUrl = `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(phone.name)}`;
+                
+                html += `
+                    <div class="phone-card">
+                        <div class="phone-header">
+                            <div class="phone-info">
+                                <h3>${phone.name}</h3>
+                                <div class="phone-brand">${phone.brand}</div>
+                            </div>
+                            <div class="phone-price">Rs.${phone.price.toLocaleString()}</div>
+                        </div>
+                        
+                        <div class="cpi-scores">
+                            <div class="cpi-item cpi-overall">
+                                <div class="cpi-label">Overall CPI</div>
+                                <div class="cpi-score">${cpi.overall_cpi}</div>
+                            </div>
+                            <div class="cpi-item">
+                                <div class="cpi-label">Processor</div>
+                                <div class="cpi-score">${cpi.processor_score}</div>
+                            </div>
+                            <div class="cpi-item">
+                                <div class="cpi-label">Display</div>
+                                <div class="cpi-score">${cpi.display_score}</div>
+                            </div>
+                            <div class="cpi-item">
+                                <div class="cpi-label">Camera</div>
+                                <div class="cpi-score">${cpi.camera_score}</div>
+                            </div>
+                            <div class="cpi-item">
+                                <div class="cpi-label">Battery</div>
+                                <div class="cpi-score">${cpi.battery_score}</div>
+                            </div>
+                            <div class="cpi-item">
+                                <div class="cpi-label">Storage</div>
+                                <div class="cpi-score">${cpi.storage_score}</div>
+                            </div>
+                            <div class="cpi-item">
+                                <div class="cpi-label">Value Ratio</div>
+                                <div class="cpi-score">${cpi.price_value_ratio}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="specs-summary">
+                            <div class="specs-grid">
+                                <div class="spec-item">
+                                    <span class="spec-label">Processor:</span> ${phone.processor || 'N/A'}
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Storage:</span> ${phone.storage || 'N/A'}
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Battery:</span> ${phone.battery || 'N/A'}
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Display:</span> ${phone.display || 'N/A'}
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Camera:</span> ${phone.camera || 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="${googleShoppingUrl}" target="_blank" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #4285f4; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; text-align: center; transition: background 0.2s;">
+                             View on Google Shopping
+                        </a>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Show sorting controls when results are displayed
+            const sortingControls = document.getElementById('sortingControls');
+            if (sortingControls) {
+                sortingControls.style.display = 'block';
+            }
+        }
+        
+        function displayStats(stats) {
+            const statsSection = document.getElementById('statsSection');
+            const statsContent = document.getElementById('statsContent');
+            
+            let html = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.total_phones}</div>
+                    <div class="stat-label">Total Phones</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.avg_cpi_score}</div>
+                    <div class="stat-label">Avg CPI Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.max_cpi_score}</div>
+                    <div class="stat-label">Max CPI Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.avg_price.toLocaleString()}</div>
+                    <div class="stat-label">Avg Price</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.price_ranges.budget}</div>
+                    <div class="stat-label">Budget Phones</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.price_ranges.premium}</div>
+                    <div class="stat-label">Premium Phones</div>
+                </div>
+            `;
+            
+            statsContent.innerHTML = html;
+            if (statsSection) statsSection.style.display = 'block';
+        }
+        
+        function showLoading(message) {
+            const container = document.getElementById('resultsContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="loading">
+                        <p>${message}</p>
+                    </div>
+                `;
+            } else {
+                console.error('resultsContainer element not found');
+            }
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('resultsContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="error">
+                        <p> ${message}</p>
+                    </div>
+                `;
+            } else {
+                console.error('resultsContainer element not found');
+            }
+        }
+        
+        // Load top phones on page load OR handle URL parameters
+        window.addEventListener('load', function() {
+            // Setup Enter key listener after DOM is loaded
+            const searchInput = document.getElementById('searchQuery');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performAISearch();
+                    }
+                });
+            }
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('query');
+            const budget = urlParams.get('budget');
+            
+            if (query) {
+                // Auto-populate search box with the query as-is (already contains all specs)
+                document.getElementById('searchQuery').value = query;
+                console.log('Loading with query from URL:', query);
+                
+                // Auto-trigger AI search
+                performAISearch();
+            } else {
+                // Default: show top CPI phones
+                getTopCPIPhones();
+            }
+        });
+
+        // Pagination state
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentSearchParams = {};
+
+        // Apply sorting - uses main page logic
+        function applySorting() {
+            const sortBy = document.getElementById('sortBy').value;
+            let sortField = sortBy;
+            let sortOrder = 'desc';
+            
+            console.log('Sorting by:', sortBy);
+            
+            if (sortBy === 'price_low') {
+                sortField = 'price';
+                sortOrder = 'asc';
+            } else if (sortBy === 'price_high') {
+                sortField = 'price';
+                sortOrder = 'desc';
+            }
+            
+            // Ensure currentSearchParams is initialized with required fields
+            if (!currentSearchParams || !currentSearchParams.query) {
+                currentSearchParams = {
+                    query: 'phone',
+                    page: 1,
+                    per_page: 20,
+                    price_min: 0,
+                    price_max: 999999,
+                    min_cpi: 0,
+                    max_results: 100
+                };
+            }
+            
+            currentSearchParams.sort_by = sortField;
+            currentSearchParams.sort_order = sortOrder;
+            currentPage = 1;
+            currentSearchParams.page = 1;
+            performSearchWithPagination(currentSearchParams);
+        }
+
+        // Go to page
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            currentSearchParams.page = page;
+            performSearchWithPagination(currentSearchParams);
+        }
+
+        // Perform search with pagination
+        async function performSearchWithPagination(params) {
+            showLoading('Loading results...');
+            
+            // Store params for sorting
+            currentSearchParams = params;
+            
+            try {
+                const response = await fetch('/api/mobile/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.results, 'Search Results', data.page, data.total_pages);
+                    updatePaginationButtons(data.page, data.total_pages);
+                    const sortingControls = document.getElementById('sortingControls');
+                    if (sortingControls) sortingControls.style.display = 'block';
+                } else {
+                    showError(data.error || 'Search failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        // Update pagination button states
+        function updatePaginationButtons(page, pages) {
+            currentPage = page;
+            totalPages = pages;
+            
+            const firstPage = document.getElementById('firstPage');
+            const prevPage = document.getElementById('prevPage');
+            const nextPage = document.getElementById('nextPage');
+            const lastPage = document.getElementById('lastPage');
+            
+            if (firstPage) {
+                firstPage.disabled = (page === 1);
+                firstPage.style.opacity = (page === 1) ? '0.5' : '1';
+                firstPage.style.cursor = (page === 1) ? 'not-allowed' : 'pointer';
+            }
+            
+            if (prevPage) {
+                prevPage.disabled = (page === 1);
+                prevPage.style.opacity = (page === 1) ? '0.5' : '1';
+                prevPage.style.cursor = (page === 1) ? 'not-allowed' : 'pointer';
+            }
+            
+            if (nextPage) {
+                nextPage.disabled = (page === pages);
+                nextPage.style.opacity = (page === pages) ? '0.5' : '1';
+                nextPage.style.cursor = (page === pages) ? 'not-allowed' : 'pointer';
+            }
+            
+            if (lastPage) {
+                lastPage.disabled = (page === pages);
+                lastPage.style.opacity = (page === pages) ? '0.5' : '1';
+                lastPage.style.cursor = (page === pages) ? 'not-allowed' : 'pointer';
+            }
+        }
+
+
+        // Interactive Chat Functions
+        let chatHistory = [];
+        
+        function clearAIChat() {
+            chatHistory = [];
+            const aiChatMessages = document.getElementById('aiChatMessages');
+            const aiResponseText = document.getElementById('aiResponseText');
+            if (aiResponseText) {
+                aiResponseText.textContent = '';
+            }
+            if (aiChatMessages) {
+                aiChatMessages.innerHTML = '<div id="aiResponseText" style="margin: 0; color: white; font-weight: 500; font-size: 15px; padding: 12px; background: rgba(255,255,255,0.15); border-radius: 8px; margin-bottom: 10px;"></div>';
+            }
+        }
+        
+        function addChatMessage(message, isUser = false) {
+            chatHistory.push({ message, isUser, timestamp: new Date() });
+            const aiChatMessages = document.getElementById('aiChatMessages');
+            if (!aiChatMessages) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                margin-bottom: 10px;
+                padding: 12px;
+                border-radius: 8px;
+                ${isUser ? 
+                    'background: rgba(255,255,255,0.25); color: white; text-align: right;' : 
+                    'background: rgba(255,255,255,0.15); color: white;'}
+            `;
+            messageDiv.textContent = message;
+            aiChatMessages.appendChild(messageDiv);
+            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+        
+        async function askAI(question) {
+            const aiFollowUpInput = document.getElementById('aiFollowUpInput');
+            if (aiFollowUpInput) {
+                aiFollowUpInput.value = question;
+            }
+            await sendAIFollowUp();
+        }
+        
+        async function sendAIFollowUp() {
+            const input = document.getElementById('aiFollowUpInput');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            // Add user message to chat
+            addChatMessage(question, true);
+            input.value = '';
+            
+            // Show thinking status
+            const aiStatus = document.getElementById('aiResponseStatus');
+            if (aiStatus) {
+                aiStatus.style.display = 'block';
+                aiStatus.innerHTML = '<span></span> Thinking...';
+            }
+            
+            try {
+                // Get current search context
+                const context = {
+                    currentQuery: currentSearchParams?.query || '',
+                    budget: currentSearchParams?.price_max || 0,
+                    chatHistory: chatHistory.slice(-5) // Last 5 messages for context
+                };
+                
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: question,
+                        context: context
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (aiStatus) aiStatus.style.display = 'none';
+                
+                if (data.success) {
+                    // Add AI response to chat
+                    addChatMessage(data.response);
+                    
+                    // If AI suggests a new search, perform it
+                    if (data.action === 'search' && data.params) {
+                        setTimeout(() => {
+                            if (data.params.query) {
+                                currentSearchParams = {
+                                    ...currentSearchParams,
+                                    ...data.params,
+                                    page: 1
+                                };
+                                performSearchWithPagination(currentSearchParams);
+                            }
+                        }, 500);
+                    }
+                } else {
+                    addChatMessage('Sorry, I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                if (aiStatus) aiStatus.style.display = 'none';
+                addChatMessage('Network error. Please check your connection and try again.');
+            }
+        }
+        
+    </script>
+</body>
+</html>
+
+
+
+
+
+

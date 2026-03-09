@@ -141,29 +141,61 @@ class MobileCPIGenerator:
         storage_lower = storage.lower()
         score = 40  # Base score
         
-        # RAM
-        ram_match = re.search(r'(\d+)\s*gb\s*ram', storage_lower)
-        if ram_match:
-            ram = int(ram_match.group(1))
-            if ram >= 12:
-                score += 30
-            elif ram >= 8:
-                score += 25
-            elif ram >= 6:
-                score += 20
-            elif ram >= 4:
-                score += 15
+        # Helper function to convert storage to GB
+        def convert_to_gb(value: float, unit: str) -> float:
+            unit = unit.lower()
+            if 'tb' in unit:
+                return value * 1024  # 1 TB = 1024 GB
+            elif 'gb' in unit:
+                return value
+            elif 'mb' in unit:
+                return value / 1024  # 1 GB = 1024 MB
+            elif 'kb' in unit:
+                return value / (1024 * 1024)  # 1 GB = 1024*1024 KB
+            return value  # Assume GB if no unit
         
-        # Storage
-        storage_match = re.search(r'(\d+)\s*gb\s*inbuilt', storage_lower)
+        # RAM - extract with proper unit handling
+        ram_match = re.search(r'(\d+)\s*(tb|gb|mb|kb)?\s*ram', storage_lower)
+        if ram_match:
+            ram_value = int(ram_match.group(1))
+            ram_unit = ram_match.group(2) or 'gb'  # Default to GB
+            ram_gb = convert_to_gb(ram_value, ram_unit)
+            
+            if ram_gb >= 12:
+                score += 30
+            elif ram_gb >= 8:
+                score += 25
+            elif ram_gb >= 6:
+                score += 20
+            elif ram_gb >= 4:
+                score += 15
+            elif ram_gb >= 2:
+                score += 10
+            elif ram_gb >= 1:
+                score += 5
+        
+        # Storage - extract with proper unit handling
+        storage_match = re.search(r'(\d+)\s*(tb|gb|mb|kb)?\s*(?:inbuilt|storage|rom)', storage_lower)
         if storage_match:
-            storage_gb = int(storage_match.group(1))
-            if storage_gb >= 512:
+            storage_value = int(storage_match.group(1))
+            storage_unit = storage_match.group(2) or 'gb'  # Default to GB
+            storage_gb = convert_to_gb(storage_value, storage_unit)
+            
+            if storage_gb >= 1024:  # 1 TB or more
+                score += 30
+            elif storage_gb >= 512:
                 score += 30
             elif storage_gb >= 256:
                 score += 25
             elif storage_gb >= 128:
                 score += 20
+            elif storage_gb >= 64:
+                score += 15
+            elif storage_gb >= 32:
+                score += 10
+            elif storage_gb >= 16:
+                score += 5
+            # Less than 16 GB gets no bonus (or penalty if MB)
         
         return min(score, 100)
     

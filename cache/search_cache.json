@@ -1,0 +1,43 @@
+{
+  "cache": {
+    "a4661c8f619eea05c7e6fe7e44ef09f1": {
+      "data": {
+        "processor": "Snapdragon 8 Gen 3",
+        "battery": "5000mAh",
+        "display": "6.7 inch AMOLED",
+        "camera": "50MP Triple",
+        "connectivity": "5G",
+        "storage": "256GB"
+      },
+      "timestamp": 1773070895.7123346,
+      "type": "specs"
+    },
+    "e8c65e5669b16970e83603951e260217": {
+      "data": {
+        "overall_cpi": 85.5,
+        "scores": {
+          "processor": 95,
+          "display": 88,
+          "camera": 82,
+          "battery": 85,
+          "storage": 80,
+          "connectivity": 90
+        },
+        "price_value_ratio": 12.5,
+        "badge": {
+          "label": "Flagship",
+          "color": "#9333ea"
+        }
+      },
+      "timestamp": 1773070895.712757,
+      "type": "cpi"
+    }
+  },
+  "stats": {
+    "hits": 2,
+    "misses": 0,
+    "evictions": 0,
+    "total_size_bytes": 479
+  },
+  "timestamp": 1773089897.4412313
+}

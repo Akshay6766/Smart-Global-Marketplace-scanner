@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -39,6 +39,22 @@
             font-size: 1.1em;
         }
         
+        
+        /* Tab System */
+        .search-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; }
+        .tab-btn { background: transparent; border: none; padding: 12px 24px; font-size: 16px; font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-btn:hover { color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .live-product-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .live-product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
+        .marketplace-badge { display: inline-block; padding: 4px 12px; background: #667eea; color: white; border-radius: 12px; font-size: 12px; font-weight: 600; margin-right: 8px; }
+        .score-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #f0f0f0; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .score-excellent { background: #d4edda; color: #155724; }
+        .score-good { background: #d1ecf1; color: #0c5460; }
+        .score-fair { background: #fff3cd; color: #856404; }
+        .score-poor { background: #f8d7da; color: #721c24; }
         .search-section {
             background: #f8f9fa;
             padding: 25px;
@@ -206,6 +222,55 @@
             padding: 10px;
             background: #f8f9fa;
             border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Primary sort criterion - bold highlight */
+        .cpi-item.primary-sort {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .cpi-item.primary-sort .cpi-label,
+        .cpi-item.primary-sort .cpi-score {
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Tiebreaker criterion - subtle highlight (single criterion) */
+        .cpi-item.tiebreaker-sort {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: 2px solid #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .cpi-item.tiebreaker-sort .cpi-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .cpi-item.tiebreaker-sort .cpi-score {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        /* Balanced tiebreaker - green/gold highlight (multiple criteria) */
+        .cpi-item.balanced-tiebreaker {
+            background: linear-gradient(135deg, #ffeaa7 0%, #55efc4 100%);
+            border: 2px solid #fdcb6e;
+            box-shadow: 0 2px 8px rgba(253, 203, 110, 0.4);
+        }
+        
+        .cpi-item.balanced-tiebreaker .cpi-label {
+            color: #d63031;
+            font-weight: 600;
+        }
+        
+        .cpi-item.balanced-tiebreaker .cpi-score {
+            color: #d63031;
+            font-weight: bold;
         }
         
         .cpi-label {
@@ -376,8 +441,10 @@
             font-weight: 600;
             box-sizing: border-box;
         }
-            .quick-actions { flex-direction: column; }
+            .quick-actions { flex-direction: column; width: 100%; }
             .quick-btn { width: 100%; }
+            .sorting-controls { width: 100%; margin-top: 10px; }
+            .sorting-controls > div { justify-content: flex-start !important; }
             .phone-header { flex-direction: column; gap: 10px; }
             .phone-info h3 { font-size: 1.1em; }
             .phone-price { font-size: 1.3em; }
@@ -402,18 +469,39 @@
         </div>
         
         <div class="search-section">
+            <div class="search-tabs">
+                <button class="tab-btn active" onclick="switchTab('indexed')">Indexed Search (978 Phones)</button>
+                <button class="tab-btn" onclick="switchTab('live')">Live Marketplace Search</button>
+            </div>
+            <div id="indexedTab" class="tab-content active">
             <div class="search-form">
                 <input type="text" id="searchQuery" class="search-input-full" placeholder="What phone are you looking for? (e.g., phone under 30k)">
                 <button onclick="performAISearch()" class="search-btn">Search</button>
             </div>
             <div id="aiResponseWindow" style="display:none; margin-top: 15px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <!-- Chat Header -->
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 24px;"></span>
                         <span style="color: white; font-weight: 600; font-size: 16px;">AI Shopping Assistant</span>
                     </div>
-                    <button onclick="clearAIChat()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Clear</button>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="aiModelSelector" onchange="switchAIModel()" style="padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; font-size: 12px; background: rgba(255,255,255,0.9); cursor: pointer;">
+                            <option value="claude-haiku"> Claude Haiku (Fast)</option>
+                            <option value="mistral-small" selected> Mistral Small (Default)</option>
+                            <option value="claude-sonnet"> Claude Sonnet</option>
+                            <option value="mistral-small"> Mistral Small</option>
+                            <option value="llama3-70b"> Llama 3 70B</option>
+                            <option value="titan"> Amazon Titan</option>
+                        </select>
+                        <button onclick="clearAIChat()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Clear</button>
+                    </div>
+                </div>
+                
+                <!-- Search History -->
+                <div id="searchHistoryContainer" style="display: none; margin-bottom: 15px;">
+                    <div style="color: rgba(255,255,255,0.9); font-size: 13px; margin-bottom: 8px; font-weight: 600;">Previous Searches:</div>
+                    <div id="searchHistoryChips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                 </div>
                 
                 <!-- Chat Messages -->
@@ -438,17 +526,50 @@
                 </div>
             </div>
         </div>
-        
-        <div class="quick-actions">
-            <button onclick="getTopCPIPhones()" class="quick-btn">Top CPI Phones</button>
-            <button onclick="getBestValuePhones()" class="quick-btn">Best Value</button>
-            <button onclick="getStats()" class="quick-btn">Statistics</button>
+            </div>
+            
+            <div id="liveTab" class="tab-content">
+                <div class="search-form">
+                    <input type="text" id="liveSearchQuery" class="search-input-full" placeholder="Search live marketplaces" onkeypress="if(event.key==='Enter') performLiveSearch()">
+                    <div class="price-row">
+                        <input type="number" id="liveBudget" class="price-input" placeholder="Budget">
+                        <select id="liveCountry" class="price-input">
+                            <option value="IN">India</option>
+                            <option value="US">United States</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="JP">Japan</option>
+                            <option value="SG">Singapore</option>
+                            <option value="AE">UAE</option>
+                        </select>
+                    </div>
+                    <button onclick="performLiveSearch()" class="search-btn">Search Live</button>
+                </div>
+                <div id="liveSearchStatus" style="display:none; margin-top: 15px; padding: 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 12px; color: white;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <span style="font-size: 24px;">Search</span>
+                        <span style="font-weight: 600;">Live Search</span>
+                    </div>
+                    <div id="liveSearchText" style="font-size: 14px;"></div>
+                </div>
+            </div>
         </div>
         
-        <div class="sorting-controls" id="sortingControls" style="display: none; background: transparent; padding: 10px 0; margin-bottom: 15px;">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end;">
-                <label style="font-weight: 600; color: #333; font-size: 14px; background: white; padding: 6px 12px; border-radius: 15px;">Sort by:</label>
-                <select id="sortBy" onchange="applySorting()" style="padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; font-size: 13px; background: rgba(255,255,255,0.9); cursor: pointer; min-width: 180px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <div class="quick-actions" style="margin-bottom: 0;">
+                <button onclick="getTopCPIPhones()" class="quick-btn">Top CPI Phones</button>
+                <button onclick="getBestValuePhones()" class="quick-btn">Best Value</button>
+                <button onclick="getStats()" class="quick-btn">Statistics</button>
+                <button onclick="switchTab('live')" class="quick-btn" style="background: rgba(40, 167, 69, 0.9);">Try Live Search</button>
+            </div>
+            
+            <div class="sorting-controls" id="sortingControls" style="display: none; background: transparent; padding: 0; margin: 0;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <label style="font-weight: 600; color: #333; font-size: 14px; background: white; padding: 6px 12px; border-radius: 15px;">Sort by:</label>
+                    <select id="sortBy" onchange="applySorting()" style="padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; font-size: 13px; background: rgba(255,255,255,0.9); cursor: pointer; min-width: 180px;">
                     <option value="overall_cpi">Overall CPI (Best)</option>
                     <option value="price_low">Price: Low to High</option>
                     <option value="price_high">Price: High to Low</option>
@@ -459,7 +580,8 @@
                     <option value="storage_score">Storage Score</option>
                     <option value="price_value_ratio">Best Value</option>
                 </select>
-                <span id="resultsCount" style="color: white; font-weight: 500; font-size: 13px;"></span>
+                    <span id="resultsCount" style="color: white; font-weight: 500; font-size: 13px;"></span>
+                </div>
             </div>
         </div>
 
@@ -486,9 +608,106 @@
     </div>
 
     <script>
+        // Global variables
+        let currentResults = [];  // Store current search results
+        let currentSearchParams = {};
+        let currentSortBy = 'overall_cpi';  // Track current sort for highlighting
+        let detectedCriteria = [];  // Track AI-detected criteria for highlighting
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (tabName === 'indexed') {
+                document.getElementById('indexedTab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            } else if (tabName === 'live') {
+                document.getElementById('liveTab').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            }
+        }
         
         
         // AI Search with Smart Fallback
+        
+        // Update search history display
+        function updateSearchHistory() {
+            const container = document.getElementById('searchHistoryContainer');
+            const chipsContainer = document.getElementById('searchHistoryChips');
+            
+            if (!container || !chipsContainer) return;
+            
+            if (searchHistory.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            chipsContainer.innerHTML = '';
+            
+            // Show last 5 searches in reverse order (most recent first)
+            const recentSearches = searchHistory.slice(-5).reverse();
+            
+            recentSearches.forEach((search, index) => {
+                const chip = document.createElement('button');
+                chip.textContent = search.query;
+                chip.style.cssText = 'background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: all 0.2s;';
+                chip.onmouseover = () => chip.style.background = 'rgba(255,255,255,0.3)';
+                chip.onmouseout = () => chip.style.background = 'rgba(255,255,255,0.2)';
+                chip.onclick = () => restoreSearch(search);
+                chipsContainer.appendChild(chip);
+            });
+        }
+        
+        // Restore a previous search
+        async function restoreSearch(search) {
+            console.log('Restoring search:', search);
+            
+            // Set flag to prevent adding to history again
+            window.isRestoringSearch = true;
+            
+            // Update search input
+            document.getElementById('searchQuery').value = search.query;
+            
+            // Show AI response window
+            const aiWindow = document.getElementById('aiResponseWindow');
+            const aiText = document.getElementById('aiResponseText');
+            
+            if (aiWindow) aiWindow.style.display = 'block';
+            if (aiText) aiText.textContent = 'Restoring previous search...';
+            
+            // Perform the search with saved parameters
+            await searchMobilesWithParams(search.searchTerm, search.budget);
+            
+            // Apply saved sorting
+            if (search.sortBy) {
+                document.getElementById('sortBy').value = search.sortBy;
+                currentSortBy = search.sortBy;
+                detectedCriteria = search.criteria || [];
+                
+                // Manually trigger sort without clearing criteria
+                let sortField = search.sortBy;
+                let sortOrder = 'desc';
+                
+                if (search.sortBy === 'price_low') {
+                    sortField = 'price';
+                    sortOrder = 'asc';
+                } else if (search.sortBy === 'price_high') {
+                    sortField = 'price';
+                    sortOrder = 'desc';
+                }
+                
+                currentSearchParams.sort_by = sortField;
+                currentSearchParams.sort_order = sortOrder;
+                currentPage = 1;
+                currentSearchParams.page = 1;
+                performSearchWithPagination(currentSearchParams);
+                
+                if (aiText) {
+                    aiText.textContent = `Restored: ${search.query}${search.budget ? ' (under Rs.' + search.budget.toLocaleString() + ')' : ''}`;
+                }
+            }
+        }
+        
         async function performAISearch() {
             const query = document.getElementById('searchQuery').value.trim();
             
@@ -506,15 +725,83 @@
             if (aiText) aiText.textContent = 'Searching for the best phones...';
             if (aiStatus) aiStatus.style.display = 'block';
             
-            // Parse query for search term and budget
+            // Parse query for budget only, keep full query for criteria detection
             const parsed = parseNaturalQuery(query);
             
             // Hide AI status after parsing
             if (aiStatus) aiStatus.style.display = 'none';
-            if (aiText) aiText.textContent = `Searching for "${parsed.searchTerm}"${parsed.budget ? ' under Rs.' + parsed.budget : ''}...`;
+            if (aiText) aiText.textContent = `Searching for phones${parsed.budget ? ' under Rs.' + parsed.budget.toLocaleString() : ''}...`;
             
-            // Call search with parsed parameters
-            await searchMobilesWithParams(parsed.searchTerm, parsed.budget);
+            // Call search with "phone" as search term but keep full query for sorting
+            await searchMobilesWithParams('phone', parsed.budget);
+            
+            // After search completes, auto-sort based on detected criteria
+            const sortPreference = detectSortPreference(query);
+            if (sortPreference) {
+                console.log('AI Auto-sorting by:', sortPreference.sortBy, 'because:', sortPreference.reason, 'criteria:', sortPreference.criteria);
+                
+                // Set highlighting variables FIRST
+                currentSortBy = sortPreference.sortBy;
+                detectedCriteria = sortPreference.criteria || [];
+                
+                // Update dropdown
+                document.getElementById('sortBy').value = sortPreference.sortBy;
+                
+                // Manually trigger sort WITHOUT clearing criteria
+                let sortField = sortPreference.sortBy;
+                let sortOrder = 'desc';
+                
+                if (sortPreference.sortBy === 'price_low') {
+                    sortField = 'price';
+                    sortOrder = 'asc';
+                } else if (sortPreference.sortBy === 'price_high') {
+                    sortField = 'price';
+                    sortOrder = 'desc';
+                }
+                
+                // Ensure currentSearchParams is initialized
+                if (!currentSearchParams || !currentSearchParams.query) {
+                    currentSearchParams = {
+                        query: 'phone',
+                        page: 1,
+                        per_page: 20,
+                        price_min: 0,
+                        price_max: parsed.budget || 999999,
+                        min_cpi: 0,
+                        max_results: 100
+                    };
+                }
+                
+                currentSearchParams.sort_by = sortField;
+                currentSearchParams.sort_order = sortOrder;
+                currentPage = 1;
+                currentSearchParams.page = 1;
+                
+                // Perform search with new sort
+                performSearchWithPagination(currentSearchParams);
+                
+                if (aiText) {
+                    aiText.textContent = `Found phones${parsed.budget ? ' under Rs.' + parsed.budget.toLocaleString() : ''}, sorted by ${sortPreference.reason}`;
+                }
+            }
+            
+            // Save to search history (only if not restoring)
+            if (!window.isRestoringSearch) {
+                searchHistory.push({
+                    query: query,
+                    searchTerm: 'phone',
+                    budget: parsed.budget,
+                    sortBy: sortPreference ? sortPreference.sortBy : 'overall_cpi',
+                    criteria: sortPreference ? sortPreference.criteria : [],
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Update history display
+                updateSearchHistory();
+            } else {
+                // Reset flag after restore
+                window.isRestoringSearch = false;
+            }
         }
         
         // Parse natural language query
@@ -703,6 +990,12 @@
         }
         
         function displayResults(results, title, page, totalPages) {
+            // Store results globally for AI context
+            currentResults = results || [];
+            
+            // Debug: Log current highlighting state
+            console.log('displayResults - currentSortBy:', currentSortBy, 'detectedCriteria:', detectedCriteria);
+            
             const container = document.getElementById('resultsContainer');
             
             // Hide stats section when showing results
@@ -757,31 +1050,35 @@
                         </div>
                         
                         <div class="cpi-scores">
-                            <div class="cpi-item cpi-overall">
+                            <div class="cpi-item cpi-overall ${
+                                currentSortBy === 'overall_cpi' ? 'primary-sort' : 
+                                (detectedCriteria.length >= 2 ? 'balanced-tiebreaker' : 
+                                (detectedCriteria.length === 0 && currentSortBy !== 'price' && currentSortBy !== 'price_low' && currentSortBy !== 'price_high' ? 'tiebreaker-sort' : ''))
+                            }">
                                 <div class="cpi-label">Overall CPI</div>
                                 <div class="cpi-score">${cpi.overall_cpi}</div>
                             </div>
-                            <div class="cpi-item">
+                            <div class="cpi-item ${(currentSortBy === 'processor_score' || (detectedCriteria && detectedCriteria.includes('performance'))) ? 'primary-sort' : ''}">
                                 <div class="cpi-label">Processor</div>
                                 <div class="cpi-score">${cpi.processor_score}</div>
                             </div>
-                            <div class="cpi-item">
+                            <div class="cpi-item ${(currentSortBy === 'display_score' || (detectedCriteria && detectedCriteria.includes('display'))) ? 'primary-sort' : ''}">
                                 <div class="cpi-label">Display</div>
                                 <div class="cpi-score">${cpi.display_score}</div>
                             </div>
-                            <div class="cpi-item">
+                            <div class="cpi-item ${(currentSortBy === 'camera_score' || (detectedCriteria && detectedCriteria.includes('camera'))) ? 'primary-sort' : ''}">
                                 <div class="cpi-label">Camera</div>
                                 <div class="cpi-score">${cpi.camera_score}</div>
                             </div>
-                            <div class="cpi-item">
+                            <div class="cpi-item ${(currentSortBy === 'battery_score' || (detectedCriteria && detectedCriteria.includes('battery'))) ? 'primary-sort' : ''}">
                                 <div class="cpi-label">Battery</div>
                                 <div class="cpi-score">${cpi.battery_score}</div>
                             </div>
-                            <div class="cpi-item">
+                            <div class="cpi-item ${(currentSortBy === 'storage_score' || (detectedCriteria && detectedCriteria.includes('storage'))) ? 'primary-sort' : ''}">
                                 <div class="cpi-label">Storage</div>
                                 <div class="cpi-score">${cpi.storage_score}</div>
                             </div>
-                            <div class="cpi-item">
+                            <div class="cpi-item ${(currentSortBy === 'price_value_ratio' || (detectedCriteria && detectedCriteria.includes('value'))) ? 'primary-sort' : ''}">
                                 <div class="cpi-label">Value Ratio</div>
                                 <div class="cpi-score">${cpi.price_value_ratio}</div>
                             </div>
@@ -917,7 +1214,6 @@
         // Pagination state
         let currentPage = 1;
         let totalPages = 1;
-        let currentSearchParams = {};
 
         // Apply sorting - uses main page logic
         function applySorting() {
@@ -925,7 +1221,13 @@
             let sortField = sortBy;
             let sortOrder = 'desc';
             
-            console.log('Sorting by:', sortBy);
+            // Track current sort for highlighting
+            currentSortBy = sortField;
+            
+            // Clear detected criteria for manual sorts (not AI-detected)
+            detectedCriteria = [];
+            
+            console.log('applySorting - Sorting by:', sortBy, 'currentSortBy:', currentSortBy, 'detectedCriteria cleared');
             
             if (sortBy === 'price_low') {
                 sortField = 'price';
@@ -984,6 +1286,12 @@
                     updatePaginationButtons(data.page, data.total_pages);
                     const sortingControls = document.getElementById('sortingControls');
                     if (sortingControls) sortingControls.style.display = 'block';
+                    
+                    // Update sort dropdown to reflect current sort
+                    const sortDropdown = document.getElementById('sortBy');
+                    if (sortDropdown && params.sort_by) {
+                        sortDropdown.value = params.sort_by;
+                    }
                 } else {
                     showError(data.error || 'Search failed');
                 }
@@ -1030,9 +1338,11 @@
 
         // Interactive Chat Functions
         let chatHistory = [];
+        let searchHistory = [];  // Track all searches for navigation
         
         function clearAIChat() {
             chatHistory = [];
+            // Note: We keep searchHistory array so users can still navigate back
             const aiChatMessages = document.getElementById('aiChatMessages');
             const aiResponseText = document.getElementById('aiResponseText');
             if (aiResponseText) {
@@ -1070,6 +1380,79 @@
             await sendAIFollowUp();
         }
         
+        // Detect sort preference from user query
+        function detectSortPreference(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            // Count how many criteria are mentioned
+            let criteriaCount = 0;
+            let detectedCriteria = [];
+            
+            // Camera-related keywords
+            if (lowerQuery.match(/(camera|photo|picture|selfie|photography|video recording|better camera|good camera)/)) {
+                criteriaCount++;
+                detectedCriteria.push('camera');
+            }
+            
+            // Battery-related keywords
+            if (lowerQuery.match(/(battery|backup|charging|long lasting|battery life|power|better battery|good battery)/)) {
+                criteriaCount++;
+                detectedCriteria.push('battery');
+            }
+            
+            // Display-related keywords
+            if (lowerQuery.match(/(display|screen|watch movies|amoled|oled|refresh rate|better display|good display)/)) {
+                criteriaCount++;
+                detectedCriteria.push('display');
+            }
+            
+            // Processor/Performance keywords
+            if (lowerQuery.match(/(processor|performance|fast|speed|snapdragon|dimensity|better performance|good performance)/)) {
+                criteriaCount++;
+                detectedCriteria.push('performance');
+            }
+            
+            // Storage keywords
+            if (lowerQuery.match(/(storage|memory|space|gb storage|better storage|more storage)/)) {
+                criteriaCount++;
+                detectedCriteria.push('storage');
+            }
+            
+            // Value/Budget keywords
+            if (lowerQuery.match(/(value|worth|cheap|affordable|best deal|value for money)/)) {
+                criteriaCount++;
+                detectedCriteria.push('value');
+            }
+            
+            // If multiple criteria detected, sort by overall CPI (balanced approach)
+            if (criteriaCount >= 2) {
+                return { sortBy: 'overall_cpi', reason: `balanced ${detectedCriteria.join(' & ')}`, criteria: detectedCriteria };
+            }
+            
+            // Single criterion - sort by specific score
+            if (detectedCriteria.includes('camera')) {
+                return { sortBy: 'camera_score', reason: 'camera quality', criteria: ['camera'] };
+            }
+            if (detectedCriteria.includes('battery')) {
+                return { sortBy: 'battery_score', reason: 'battery performance', criteria: ['battery'] };
+            }
+            if (detectedCriteria.includes('display')) {
+                return { sortBy: 'display_score', reason: 'display quality', criteria: ['display'] };
+            }
+            if (detectedCriteria.includes('performance')) {
+                return { sortBy: 'processor_score', reason: 'processor performance', criteria: ['performance'] };
+            }
+            if (detectedCriteria.includes('storage')) {
+                return { sortBy: 'storage_score', reason: 'storage capacity', criteria: ['storage'] };
+            }
+            if (detectedCriteria.includes('value')) {
+                return { sortBy: 'price_value_ratio', reason: 'value for money', criteria: ['value'] };
+            }
+            
+            // Default - no specific preference detected
+            return null;
+        }
+        
         async function sendAIFollowUp() {
             const input = document.getElementById('aiFollowUpInput');
             const question = input.value.trim();
@@ -1088,11 +1471,27 @@
             }
             
             try {
-                // Get current search context
+                // Get current search context with displayed phones
+                const displayedPhones = currentResults.slice(0, 20).map(phone => ({
+                    name: phone.name,
+                    brand: phone.brand,
+                    price: phone.price,
+                    overall_cpi: phone.cpi_scores?.overall_cpi || 0,
+                    battery_score: phone.cpi_scores?.battery_score || 0,
+                    camera_score: phone.cpi_scores?.camera_score || 0,
+                    display_score: phone.cpi_scores?.display_score || 0,
+                    processor_score: phone.cpi_scores?.processor_score || 0,
+                    storage_score: phone.cpi_scores?.storage_score || 0,
+                    price_value_ratio: phone.cpi_scores?.price_value_ratio || 0
+                }));
+                
                 const context = {
+                    page: 'mobile', // Indicate we're on mobile page
                     currentQuery: currentSearchParams?.query || '',
                     budget: currentSearchParams?.price_max || 0,
-                    chatHistory: chatHistory.slice(-5) // Last 5 messages for context
+                    chatHistory: chatHistory.slice(-5), // Last 5 messages for context
+                    displayedPhones: displayedPhones, // Pass displayed phones with CPI scores
+                    phoneCount: displayedPhones.length
                 };
                 
                 const response = await fetch('/api/ai/chat', {
@@ -1112,6 +1511,42 @@
                     // Add AI response to chat
                     addChatMessage(data.response);
                     
+                    // Check if user is asking to sort by specific criteria
+                    const sortPreference = detectSortPreference(question);
+                    if (sortPreference && currentResults.length > 0) {
+                        console.log('AI Follow-up Auto-sorting by:', sortPreference.sortBy, 'criteria:', sortPreference.criteria);
+                        
+                        // Set highlighting variables FIRST
+                        currentSortBy = sortPreference.sortBy;
+                        detectedCriteria = sortPreference.criteria || [];
+                        
+                        // Update dropdown to reflect sort
+                        document.getElementById('sortBy').value = sortPreference.sortBy;
+                        
+                        // Update search params with new sort
+                        let sortField = sortPreference.sortBy;
+                        let sortOrder = 'desc';
+                        
+                        if (sortPreference.sortBy === 'price_low') {
+                            sortField = 'price';
+                            sortOrder = 'asc';
+                        } else if (sortPreference.sortBy === 'price_high') {
+                            sortField = 'price';
+                            sortOrder = 'desc';
+                        }
+                        
+                        currentSearchParams.sort_by = sortField;
+                        currentSearchParams.sort_order = sortOrder;
+                        
+                        // Re-fetch with new sort (this will preserve detectedCriteria)
+                        performSearchWithPagination(currentSearchParams);
+                        
+                        // Add notification
+                        setTimeout(() => {
+                            addChatMessage('Sorted by ' + sortPreference.reason + ' ');
+                        }, 500);
+                    }
+                    
                     // If AI suggests a new search, perform it
                     if (data.action === 'search' && data.params) {
                         setTimeout(() => {
@@ -1130,11 +1565,367 @@
                 }
             } catch (error) {
                 if (aiStatus) aiStatus.style.display = 'none';
-                addChatMessage('Network error. Please check your connection and try again.');
+                console.error('AI Chat Error:', error);
+                addChatMessage('Sorry, I encountered an error: ' + error.message + '. Please try again.');
             }
         }
         
-    </script>
+
+        
+        
+        // Helper function to extract base model name
+        function extractBaseModel(title) {
+            // Remove storage variants (128GB, 256GB, etc.)
+            let cleaned = title.replace(/\b\d+\s*(GB|TB|MB)\b/gi, '');
+            // Remove RAM variants
+            cleaned = cleaned.replace(/\b\d+\s*GB\s*(RAM|Memory)\b/gi, '');
+            // Remove color variants in parentheses
+            cleaned = cleaned.replace(/\([^)]*\)/g, '');
+            // Remove extra spaces
+            cleaned = cleaned.split(/\s+/).join(' ').trim();
+            return cleaned.toLowerCase();
+        }
+        
+        // Helper function to check if title matches query (BALANCED)
+        function isExactModelMatch(title, query) {
+            const titleLower = title.toLowerCase();
+            const queryLower = query.toLowerCase();
+            
+            // Reject non-phone products
+            const nonPhoneKeywords = ["piano", "keyboard", "guitar", "drum", "violin", "flute", "saxophone"];
+            for (const keyword of nonPhoneKeywords) {
+                if (titleLower.includes(keyword)) {
+                    console.log(`Rejected non-phone product: ${title}`);
+                    return false;
+                }
+            }
+            
+            // Extract key words from query (ignore common words)
+            const stopWords = ["phone", "mobile", "smartphone", "the", "a", "an"];
+            const queryWords = queryLower.split(/\s+/).filter(w => w.length > 1 && !stopWords.includes(w));
+            
+            // ALL query words must be present in title
+            for (const qWord of queryWords) {
+                if (!titleLower.includes(qWord)) {
+                    return false; // Missing word, reject
+                }
+            }
+            
+            // Reject if title has conflicting model identifiers
+            // e.g., "nord 5" should not match "nord ce5" or "nord 4"
+            const rejectPatterns = [
+                // If searching "nord 5", reject "nord ce", "nord ce5", "nord ce 5"
+                /nord\s+ce/i,
+                // If searching specific number, reject different numbers
+                // This is tricky, so we check if query has a number
+            ];
+            
+            // Extract numbers from query and title
+            const queryNumbers = queryLower.match(/\b\d+\b/g) || [];
+            const titleNumbers = titleLower.match(/\b\d+(?!gb|tb|mb|mah|mp|hz|inch|w)\b/gi) || [];
+            
+            // If query has a model number (like "5" in "nord 5")
+            if (queryNumbers.length > 0) {
+                // Check if title has that exact number (ignoring storage/specs)
+                let hasQueryNumber = false;
+                for (const qNum of queryNumbers) {
+                    // Check if this number appears in title in model context
+                    const pattern = new RegExp("\\b" + qNum + "\\b(?!gb|tb|mb|mah|mp|hz|inch|w)", "i");
+                    if (pattern.test(titleLower)) {
+                        hasQueryNumber = true;
+                        break;
+                    }
+                }
+                
+                if (!hasQueryNumber) {
+                    return false; // Query number not found in title
+                }
+            }
+            
+            // Reject if title has "CE" but query doesn't
+            if (titleLower.includes(" ce") && !queryLower.includes("ce")) {
+                return false;
+            }
+            
+            // Reject if title has "pro/plus/lite/max/ultra/mini" but query doesn't
+            const variants = ["pro", "plus", "lite", "max", "ultra", "mini"];
+            for (const variant of variants) {
+                if (titleLower.includes(" " + variant) && !queryLower.includes(variant)) {
+                    return false;
+                }
+            }
+            
+            return true; // All checks passed
+        }
+        
+        // Helper function to deduplicate results (keep best price per variant)
+        function deduplicateResults(results) {
+            const variantMap = new Map();
+            
+            for (const result of results) {
+                const base = extractBaseModel(result.title);
+                
+                // Extract storage variant
+                const storageMatch = result.title.match(/\b(\d+)\s*(GB|TB)\b/i);
+                const storage = storageMatch ? storageMatch[0] : "unknown";
+                
+                const key = base + "|" + storage;
+                
+                // Keep only the lowest price for each variant
+                if (!variantMap.has(key) || result.price < variantMap.get(key).price) {
+                    variantMap.set(key, result);
+                }
+            }
+            
+            return Array.from(variantMap.values());
+        }
+        
+        async function performLiveSearch() {
+            const query = document.getElementById('liveSearchQuery').value.trim();
+            const budget = document.getElementById('liveBudget').value;
+            const country = document.getElementById('liveCountry').value;
+            if (!query) { alert('Please enter a search term'); return; }
+            showLoading('Searching...');
+            try {
+                const params = { query: query, country_code: country, page: 1, per_page: 20 };
+                if (budget && budget > 0) params.budget = parseFloat(budget);
+                const response = await fetch('/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
+                const data = await response.json();
+                if (data.success) {
+                    // Filter results to only show exact model matches
+                    let filteredResults = data.results.filter(r => isExactModelMatch(r.title, query));
+                    console.log(`Filtered ${data.results.length} results to ${filteredResults.length} exact matches`);
+                    
+                    // Deduplicate - keep best price per variant
+                    filteredResults = deduplicateResults(filteredResults);
+                    console.log(`Deduplicated to ${filteredResults.length} unique variants (best prices)`);
+                    
+                    displayLiveResults(filteredResults, data.currency_symbol, data.country_name);
+                } else {
+                    showError(data.error || 'Search failed');
+                }
+            } catch (error) { showError('Error: ' + error.message); }
+        }
+        
+        function extractMobileSpecs(title, snippet) {
+            const text = (title + " " + (snippet || "")).toLowerCase();
+            const specs = { processor: "", battery: "", display: "", camera: "", connectivity: "", storage: "" };
+            const procPatterns = [/snapdragon\s*(\d+)/i, /mediatek\s*dimensity\s*(\d+)/i, /helio\s*[gp]\d+/i, /exynos\s*(\d+)/i, /apple\s*a\d+/i, /bionic/i, /tensor/i, /octa[\s-]?core/i];
+            for (let p of procPatterns) { const m = text.match(p); if (m) { specs.processor = m[0]; break; } }
+            const battPatterns = [/(\d{4,5})\s*mah/i, /(\d+)w\s*fast\s*charg/i];
+            for (let p of battPatterns) { const m = text.match(p); if (m) { specs.battery = m[0]; break; } }
+            const dispPatterns = [/(\d+\.\d+)[\s-]?inch/i, /(\d+)hz/i, /amoled/i, /oled/i, /lcd/i];
+            for (let p of dispPatterns) { const m = text.match(p); if (m) { specs.display = m[0]; break; } }
+            const camPatterns = [/(\d+)\s*mp/i, /triple\s*camera/i, /quad\s*camera/i, /dual\s*camera/i];
+            for (let p of camPatterns) { const m = text.match(p); if (m) { specs.camera = m[0]; break; } }
+            const connPatterns = [/5g/i, /4g\s*lte/i, /wifi\s*6/i, /bluetooth\s*5/i, /nfc/i];
+            const connFound = []; for (let p of connPatterns) { const m = text.match(p); if (m) connFound.push(m[0]); }
+            if (connFound.length > 0) specs.connectivity = connFound.join(", ");
+            const storPatterns = [/(\d+)gb\s*ram/i, /(\d+)gb\s*storage/i, /(\d+)gb\s*rom/i];
+            const storFound = []; for (let p of storPatterns) { const m = text.match(p); if (m) storFound.push(m[0]); }
+            if (storFound.length > 0) specs.storage = storFound.slice(0, 2).join(", ");
+            return specs;
+        }
+        
+        async function displayLiveResults(results, sym, country) {
+            const container = document.getElementById("resultsContainer");
+            if (!results || results.length === 0) { 
+                container.innerHTML = "<div class=\"loading\"><p>No products found</p></div>"; 
+                return; 
+            }
+            
+            let html = "<h2>Live Results (" + results.length + " from " + country + ")</h2>";
+            
+            for (const p of results) {
+                html += "<div class=\"live-product-card\">";
+                html += "<h3>" + p.title + "</h3>";
+                html += "<span class=\"marketplace-badge\">" + p.source + "</span>";
+                html += "<div style=\"font-size:1.5em;color:#28a745;\">" + sym + p.price.toLocaleString() + "</div>";
+                
+                // CPI Badge placeholder
+                html += "<div id=\"cpi-" + p.title.replace(/[^a-z0-9]/gi, "") + "\" style=\"margin:10px 0;\"></div>";
+                
+                // Always show specs section with loading state
+                html += "<div style=\"background:#f8f9fa;padding:15px;border-radius:8px;margin:15px 0;\">";
+                html += "<div style=\"font-weight:600;margin-bottom:10px;\">Specifications</div>";
+                html += "<div id=\"specs-" + p.title.replace(/[^a-z0-9]/gi, "") + "\" style=\"display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;\">";
+                html += "<div><b>Processor:</b> <span class=\"spec-loading\">Loading...</span></div>";
+                html += "<div><b>Battery:</b> <span class=\"spec-loading\">Loading...</span></div>";
+                html += "<div><b>Display:</b> <span class=\"spec-loading\">Loading...</span></div>";
+                html += "<div><b>Camera:</b> <span class=\"spec-loading\">Loading...</span></div>";
+                html += "<div><b>Connectivity:</b> <span class=\"spec-loading\">Loading...</span></div>";
+                html += "<div><b>Storage:</b> <span class=\"spec-loading\">Loading...</span></div>";
+                html += "</div></div>";
+                
+                html += "<a href=\"" + (p.url || p.link || "#") + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;background:#667eea;color:white;text-decoration:none;border-radius:8px;margin-top:10px;\">View Product</a></div>";
+            }
+            
+            container.innerHTML = html;
+            
+            // Now fetch specs for each product using AI
+            for (const p of results) {
+                const specId = "specs-" + p.title.replace(/[^a-z0-9]/gi, "");
+                // Pass all available text: title + description + snippet
+                const fullText = [p.title, p.description || "", p.snippet || ""].join(" ");
+                fetchSpecs(p.title, fullText, specId, p.price);
+            }
+        }
+        
+        async function fetchSpecs(title, snippet, specId, price) {
+            try {
+                const response = await fetch("/api/extract-specs", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: title, snippet: snippet })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.specs) {
+                    const specs = data.specs;
+                    
+                    // Count how many specs are "Not specified"
+                    const notSpecifiedCount = Object.values(specs).filter(v => 
+                        v === "Not specified" || v === "" || !v
+                    ).length;
+                    
+                    // If more than 4 out of 6 specs are missing, hide this product
+                    if (notSpecifiedCount > 4) {
+                        console.log(`Hiding product with insufficient specs: ${title}`);
+                        const productCard = document.getElementById(specId).closest(".live-product-card");
+                        if (productCard) {
+                            productCard.style.display = "none";
+                        }
+                        return;
+                    }
+                    
+                    const specDiv = document.getElementById(specId);
+                    if (specDiv) {
+                        specDiv.innerHTML = 
+                            "<div><b>Processor:</b> " + (specs.processor || "Not specified") + "</div>" +
+                            "<div><b>Battery:</b> " + (specs.battery || "Not specified") + "</div>" +
+                            "<div><b>Display:</b> " + (specs.display || "Not specified") + "</div>" +
+                            "<div><b>Camera:</b> " + (specs.camera || "Not specified") + "</div>" +
+                            "<div><b>Connectivity:</b> " + (specs.connectivity || "Not specified") + "</div>" +
+                            "<div><b>Storage:</b> " + (specs.storage || "Not specified") + "</div>";
+                    }
+                    
+                    // Calculate CPI after specs are loaded
+                    calculateAndDisplayCPI(title, specs, price);
+                }
+            } catch (error) {
+                console.error("Error fetching specs:", error);
+                const specDiv = document.getElementById(specId);
+                if (specDiv) {
+                    specDiv.innerHTML = "<div style=\"color:#999;\">Specs not available</div>";
+                }
+            }
+        }
+        
+
+        async function calculateAndDisplayCPI(title, specs, price) {
+            try {
+                const productId = title.replace(/[^a-z0-9]/gi, "");
+                const cpiDiv = document.getElementById("cpi-" + productId);
+                if (!cpiDiv) return;
+                
+                // Calculate CPI
+                const response = await fetch("/api/calculate-cpi", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ specs: specs, price: price, title: title })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.cpi) {
+                    const cpi = data.cpi;
+                    
+                    // Display CPI badge and scores
+                    let cpiHtml = "<div style='display:flex;align-items:center;gap:15px;flex-wrap:wrap;'>";
+                    
+                    // Overall CPI Badge
+                    cpiHtml += "<div style='display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:" + cpi.badge.color + ";color:white;border-radius:20px;font-weight:600;'>";
+                    cpiHtml += "<span>CPI: " + cpi.overall_cpi + "</span>";
+                    cpiHtml += "<span style='background:rgba(255,255,255,0.3);padding:2px 8px;border-radius:10px;font-size:0.85em;'>" + cpi.badge.label + "</span>";
+                    cpiHtml += "</div>";
+                    
+                    // Value Score
+                    if (price > 0) {
+                        const valueColor = cpi.price_value_ratio >= 15 ? "#10b981" : cpi.price_value_ratio >= 10 ? "#f59e0b" : "#6b7280";
+                        cpiHtml += "<div style='padding:6px 12px;background:" + valueColor + ";color:white;border-radius:15px;font-size:0.9em;'>";
+                        cpiHtml += "Value: " + cpi.price_value_ratio + "/100";
+                        cpiHtml += "</div>";
+                    }
+                    
+                    cpiHtml += "</div>";
+                    
+                    // Individual scores (collapsible)
+                    cpiHtml += "<details style='margin-top:10px;'>";
+                    cpiHtml += "<summary style='cursor:pointer;color:#667eea;font-weight:600;'>View Detailed Scores</summary>";
+                    cpiHtml += "<div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px;'>";
+                    cpiHtml += "<div><span style='color:#666;'>Processor:</span> <b>" + cpi.scores.processor + "</b></div>";
+                    cpiHtml += "<div><span style='color:#666;'>Display:</span> <b>" + cpi.scores.display + "</b></div>";
+                    cpiHtml += "<div><span style='color:#666;'>Camera:</span> <b>" + cpi.scores.camera + "</b></div>";
+                    cpiHtml += "<div><span style='color:#666;'>Battery:</span> <b>" + cpi.scores.battery + "</b></div>";
+                    cpiHtml += "<div><span style='color:#666;'>Storage:</span> <b>" + cpi.scores.storage + "</b></div>";
+                    cpiHtml += "<div><span style='color:#666;'>Connectivity:</span> <b>" + cpi.scores.connectivity + "</b></div>";
+                    cpiHtml += "</div></details>";
+                    
+                    cpiDiv.innerHTML = cpiHtml;
+                }
+            } catch (error) {
+                console.error("Error calculating CPI:", error);
+            }
+        }
+        
+        // Switch AI Model
+        async function switchAIModel() {
+            const selector = document.getElementById('aiModelSelector');
+            const model = selector.value;
+            
+            try {
+                const response = await fetch('/api/ai/switch-model', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: model })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message
+                    const modelName = selector.options[selector.selectedIndex].text;
+                    console.log('Switched to ' + modelName);
+                    
+                    // Optional: Show toast notification
+                    showToast('AI Model switched to ' + modelName, 'success');
+                } else {
+                    console.error('Failed to switch model:', data.error);
+                    showToast('Failed to switch AI model', 'error');
+                }
+            } catch (error) {
+                console.error('Error switching model:', error);
+                showToast('Error switching AI model', 'error');
+            }
+        }
+        
+        // Simple toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background: ' + 
+                (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6') + 
+                '; color: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-size: 14px; font-weight: 500;';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+</script>
 </body>
 </html>
 

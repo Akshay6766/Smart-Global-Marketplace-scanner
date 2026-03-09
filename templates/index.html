@@ -121,7 +121,37 @@
             .search-suggestions { gap: 8px; }
             .suggestion-chip { font-size: 13px; padding: 8px 14px; }
         }
-    </style>
+    
+/* Smart Banner Styles */
+.smart-banner {
+    margin: -15px -15px 15px -15px;
+    padding: 12px 15px;
+    border-radius: 8px 8px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.smart-banner.balanced {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.smart-banner.storage {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.smart-banner-message {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.smart-banner-details {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+</style>
 </head>
 <body>
     <div class="page-container">
@@ -150,12 +180,22 @@
             </div>
             <div class="ai-response-window" id="aiResponseWindow" style="display:none;">
                 <!-- Chat Header -->
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 24px;"></span>
                         <span style="font-weight: 600; font-size: 16px; color: #333;">AI Shopping Assistant</span>
                     </div>
-                    <button onclick="clearAIChat()" style="background: #f0f0f0; color: #666; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Clear</button>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="aiModelSelector" onchange="switchAIModel()" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; background: white; cursor: pointer;">
+                            <option value="claude-haiku"> Claude Haiku (Fast)</option>
+                            <option value="mistral-small" selected> Mistral Small (Default)</option>
+                            <option value="claude-sonnet"> Claude Sonnet</option>
+                            <option value="mistral-small"> Mistral Small</option>
+                            <option value="llama3-70b"> Llama 3 70B</option>
+                            <option value="titan"> Amazon Titan</option>
+                        </select>
+                        <button onclick="clearAIChat()" style="background: #f0f0f0; color: #666; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Clear</button>
+                    </div>
                 </div>
                 
                 <!-- Chat Messages -->
@@ -211,6 +251,53 @@
             </div>
         </div>
     </div>
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js">
+        // Switch AI Model
+        async function switchAIModel() {
+            const selector = document.getElementById('aiModelSelector');
+            const model = selector.value;
+            
+            try {
+                const response = await fetch('/api/ai/switch-model', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: model })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message
+                    const modelName = selector.options[selector.selectedIndex].text;
+                    console.log('Switched to ' + modelName);
+                    
+                    // Optional: Show toast notification
+                    showToast('AI Model switched to ' + modelName, 'success');
+                } else {
+                    console.error('Failed to switch model:', data.error);
+                    showToast('Failed to switch AI model', 'error');
+                }
+            } catch (error) {
+                console.error('Error switching model:', error);
+                showToast('Error switching AI model', 'error');
+            }
+        }
+        
+        // Simple toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background: ' + 
+                (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6') + 
+                '; color: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-size: 14px; font-weight: 500;';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+</script>
 </body>
 </html>
