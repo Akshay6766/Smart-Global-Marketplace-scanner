@@ -26,11 +26,12 @@ CORS(app)  # Enable CORS for API requests
 search_engines = {}
 
 
-def get_search_engine(country_code: str) -> GeoProductSearchEngine:
-    """Get or create search engine for country"""
-    if country_code not in search_engines:
-        search_engines[country_code] = GeoProductSearchEngine(country_code=country_code)
-    return search_engines[country_code]
+# Temporarily disabled - missing GeoProductSearchEngine
+# def get_search_engine(country_code: str) -> GeoProductSearchEngine:
+#     """Get or create search engine for country"""
+#     if country_code not in search_engines:
+#         search_engines[country_code] = GeoProductSearchEngine(country_code=country_code)
+#     return search_engines[country_code]
 
 
 
