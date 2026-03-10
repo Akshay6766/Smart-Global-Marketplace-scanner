@@ -835,7 +835,34 @@ async function performSearch() {
         // Check if mobile search - redirect to mobile CPI page (exclude headphone/earphone)
         const queryLower = query.toLowerCase();
         const isHeadphone = queryLower.includes('headphone') || queryLower.includes('earphone') || queryLower.includes('earbud') || queryLower.includes('airpod');
-        const mobileKeywords = ['phone', 'mobile', 'smartphone', 'iphone', 'samsung'];
+        
+        // Enhanced mobile detection with brand names and model numbers
+        const mobileKeywords = [
+            // Generic terms
+            'phone', 'mobile', 'smartphone', 'cellphone',
+            // Apple
+            'iphone', 'iphone 15', 'iphone 14', 'iphone 13', 'iphone 12', 'iphone 11',
+            'iphone se', 'iphone pro', 'iphone plus', 'iphone mini',
+            // Samsung
+            'samsung', 'galaxy', 's24', 's23', 's22', 's21', 's20', 'note', 'fold', 'flip',
+            'galaxy s', 'galaxy note', 'galaxy a', 'galaxy m', 'galaxy f',
+            // OnePlus
+            'oneplus', 'one plus', 'oneplus 12', 'oneplus 11', 'oneplus 10', 'oneplus 9',
+            'oneplus nord', 'oneplus ace', '1+', 'op12', 'op11',
+            // Xiaomi/Redmi/POCO
+            'xiaomi', 'redmi', 'poco', 'mi 14', 'mi 13', 'mi 12', 'mi 11',
+            'redmi note', 'redmi 13', 'redmi 12', 'poco x', 'poco f', 'poco m',
+            // Realme
+            'realme', 'realme 12', 'realme 11', 'realme 10', 'realme 9', 'realme gt',
+            'realme narzo', 'realme c',
+            // Vivo/Oppo
+            'vivo', 'oppo', 'vivo v', 'vivo y', 'vivo x', 'oppo a', 'oppo f', 'oppo reno',
+            // Google
+            'pixel', 'google pixel', 'pixel 8', 'pixel 7', 'pixel 6',
+            // Other brands
+            'motorola', 'moto', 'nokia', 'nothing', 'iqoo', 'honor', 'huawei'
+        ];
+        
         const isMobileSearch = !isHeadphone && mobileKeywords.some(k => queryLower.includes(k));
         
         if (isMobileSearch) {
@@ -867,7 +894,34 @@ async function performSearch() {
         // Check if mobile search - redirect to mobile CPI page (exclude headphone/earphone)
         const queryLower = query.toLowerCase();
         const isHeadphone = queryLower.includes('headphone') || queryLower.includes('earphone') || queryLower.includes('earbud') || queryLower.includes('airpod');
-        const mobileKeywords = ['phone', 'mobile', 'smartphone', 'iphone', 'samsung'];
+        
+        // Enhanced mobile detection with brand names and model numbers
+        const mobileKeywords = [
+            // Generic terms
+            'phone', 'mobile', 'smartphone', 'cellphone',
+            // Apple
+            'iphone', 'iphone 15', 'iphone 14', 'iphone 13', 'iphone 12', 'iphone 11',
+            'iphone se', 'iphone pro', 'iphone plus', 'iphone mini',
+            // Samsung
+            'samsung', 'galaxy', 's24', 's23', 's22', 's21', 's20', 'note', 'fold', 'flip',
+            'galaxy s', 'galaxy note', 'galaxy a', 'galaxy m', 'galaxy f',
+            // OnePlus
+            'oneplus', 'one plus', 'oneplus 12', 'oneplus 11', 'oneplus 10', 'oneplus 9',
+            'oneplus nord', 'oneplus ace', '1+', 'op12', 'op11',
+            // Xiaomi/Redmi/POCO
+            'xiaomi', 'redmi', 'poco', 'mi 14', 'mi 13', 'mi 12', 'mi 11',
+            'redmi note', 'redmi 13', 'redmi 12', 'poco x', 'poco f', 'poco m',
+            // Realme
+            'realme', 'realme 12', 'realme 11', 'realme 10', 'realme 9', 'realme gt',
+            'realme narzo', 'realme c',
+            // Vivo/Oppo
+            'vivo', 'oppo', 'vivo v', 'vivo y', 'vivo x', 'oppo a', 'oppo f', 'oppo reno',
+            // Google
+            'pixel', 'google pixel', 'pixel 8', 'pixel 7', 'pixel 6',
+            // Other brands
+            'motorola', 'moto', 'nokia', 'nothing', 'iqoo', 'honor', 'huawei'
+        ];
+        
         const isMobileSearch = !isHeadphone && mobileKeywords.some(k => queryLower.includes(k));
         
         if (isMobileSearch) {
