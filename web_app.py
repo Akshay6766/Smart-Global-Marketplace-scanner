@@ -9,9 +9,10 @@ import asyncio
 from typing import List, Dict
 import json
 
-from geo_product_finder import GeoProductSearchEngine
-from geo_marketplace_config import GeoMarketplaceConfig
-from smart_product_finder import ProductHit
+# Temporarily disabled - missing smart_product_finder module
+# from geo_product_finder import GeoProductSearchEngine
+# from geo_marketplace_config import GeoMarketplaceConfig
+# from smart_product_finder import ProductHit
 from budget_advisor import BudgetAdvisor
 from dataclasses import asdict
 from live_cpi_calculator import LiveCPICalculator
