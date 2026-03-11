@@ -1,4 +1,4 @@
-﻿"""
+"""
 Modern Web Application for Geo-Aware Product Search
 Flask backend with REST API
 """
@@ -216,7 +216,7 @@ def filter_results():
         
         elif filter_type == 'rating':
             min_rating = filter_value.get('min', 0)
-            filtered = [r for r in filtered if r.get('product_rating', 0) >= min_rating]
+            filtered = [r for r in filtered if r.get('rating', 0) >= min_rating]
         
         return jsonify({
             'success': True,
@@ -245,7 +245,7 @@ def sort_results():
         if sort_by == 'price':
             sorted_results = sorted(results, key=lambda x: x['price'], reverse=reverse)
         elif sort_by == 'rating':
-            sorted_results = sorted(results, key=lambda x: x.get('product_rating', 0), reverse=reverse)
+            sorted_results = sorted(results, key=lambda x: x.get('rating', 0), reverse=reverse)
         elif sort_by == 'trust':
             sorted_results = sorted(results, key=lambda x: x['trust_score'], reverse=reverse)
         elif sort_by == 'quality':
@@ -373,7 +373,7 @@ def _sort_product_results(results, sort_by, sort_order):
     if sort_by == "price":
         results.sort(key=lambda x: x.get("price", 0), reverse=reverse)
     elif sort_by == "rating":
-        results.sort(key=lambda x: x.get("product_rating", 0), reverse=reverse)
+        results.sort(key=lambda x: x.get("rating", 0), reverse=reverse)
     elif sort_by == "trust":
         results.sort(key=lambda x: x.get("trust_score", 0), reverse=reverse)
     elif sort_by == "quality":
@@ -644,7 +644,7 @@ def search_mobiles():
         
         # Search with sorting (get top 100 results)
         all_results = mobile_engine.search_mobiles(
-            query=data.get('query', ''),
+            query=data.get('query', '').strip(),
             max_results=100,
             price_min=data.get('price_min', 0),
             price_max=data.get('price_max', float('inf')),
@@ -652,6 +652,20 @@ def search_mobiles():
             sort_by=sort_by,
             sort_order=sort_order
         )
+        
+        # Check if this is a specific model query with no results
+        is_specific_model = data.get('query', '').strip() and len(data.get('query', '').strip().split()) >= 2
+        
+        # If no results for specific model, suggest live search
+        if len(all_results) == 0 and is_specific_model:
+            return jsonify({
+                'success': True,
+                'query': data.get('query'),
+                'total_results': 0,
+                'results': [],
+                'live_search_suggestion': True,
+                'message': f'No indexed results found. Try the Live Marketplace Search tab for real-time results.'
+            })
         
         # Calculate pagination
         total_results = len(all_results)
@@ -703,7 +717,7 @@ def get_mobile_stats():
 try:
     from bedrock_ai_assistant import BedrockShoppingAssistant
     bedrock_ai = BedrockShoppingAssistant(region='us-east-1', model='mistral-small')
-    print('âœ“ Bedrock AI ready')
+    print('✓ Bedrock AI ready')
 except:
     bedrock_ai = None
 

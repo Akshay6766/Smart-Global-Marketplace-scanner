@@ -1,4 +1,4 @@
-﻿from google import genai
+from google import genai
 import json
 try:
     from api_keys_config import GEMINI_API_KEY
@@ -233,15 +233,14 @@ Return ONLY the JSON array, no other text."""
                         continue  # Skip products too far above budget
                     
                     hit = ProductHit(
-                        title=p.get("title", "Unknown Product"),
+                        name=p.get("title", "Unknown Product"),
                         price=price,
-                        currency=p.get("currency", currency),
                         url=product_url,
-                        source=p.get("source", "Unknown"),
-                        seller_name=p.get("seller_name", "Seller"),
-                        seller_rating=4.5,
-                        product_rating=float(p.get("rating", 4.0)),
-                        review_count=int(p.get("reviews", 100)),
+
+                        
+
+                        rating=float(p.get("rating", 4.0)),
+                        reviews_count=int(p.get("reviews", 100)),
                         image_url=f"https://via.placeholder.com/400x400/4A90E2/FFFFFF?text={p.get('source', 'Product').replace(' ', '+')}",
                         description=p.get("description", "")[:200]
                     )
@@ -266,10 +265,10 @@ Return ONLY the JSON array, no other text."""
                 above = [r for r in results if r.price > budget]
                 
                 # Sort within budget by trust score (descending)
-                within.sort(key=lambda x: x.trust_score if hasattr(x, 'trust_score') else x.product_rating, reverse=True)
+                within.sort(key=lambda x: x.trust_score if hasattr(x, 'trust_score') else x.rating, reverse=True)
                 
                 # Sort above budget by rating (descending)
-                above.sort(key=lambda x: x.product_rating, reverse=True)
+                above.sort(key=lambda x: x.rating, reverse=True)
                 
                 results = within + above
             
@@ -298,7 +297,7 @@ async def test_gemini():
     
     # Test 1: Search with budget
     print("\n Test 1: Mobile phone with budget")
-    results = await searcher.search_products("mobile phone", "India", 5, budget=20000, currency="INR")
+    results = await searcher.search_products("mobile phone", "India", 5, budget=20000)  # currency="INR"
     
     if results:
         print(f"\n Found {len(results)} products")

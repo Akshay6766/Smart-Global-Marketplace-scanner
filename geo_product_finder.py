@@ -1,4 +1,5 @@
-﻿"""
+﻿# -*- coding: utf-8 -*-
+"""
 Geo-Location Aware Product Search Engine
 Automatically searches country-specific marketplaces
 """
@@ -40,7 +41,7 @@ class GeoProductSearchEngine:
         )
         
         if not self.marketplaces:
-            print(f"⚠️  No marketplaces found for {self.country_code}, using US defaults")
+            print(f"??  No marketplaces found for {self.country_code}, using US defaults")
             self.country_code = 'US'
             self.marketplaces = GeoMarketplaceConfig.get_marketplaces_for_country('US')
         
@@ -67,14 +68,14 @@ class GeoProductSearchEngine:
             query: Product search query
             max_results: Maximum number of results
         """
-        print(f"\n🌍 Searching in: {self.country_name} ({self.country_code})")
-        print(f"💱 Currency: {self.currency} ({self.currency_symbol})")
-        print(f"🔍 Query: '{query}'")
-        print(f"📡 Scanning {len(self.marketplaces)} local marketplaces...\n")
+        print(f"\n?? Searching in: {self.country_name} ({self.country_code})")
+        print(f"?? Currency: {self.currency} ({self.currency_symbol})")
+        print(f"?? Query: '{query}'")
+        print(f"?? Scanning {len(self.marketplaces)} local marketplaces...\n")
         
         # Display marketplaces being searched
         for marketplace in self.marketplaces:
-            print(f"   • {marketplace.name} ({marketplace.domain})")
+            print(f"   � {marketplace.name} ({marketplace.domain})")
         print()
         
         # Search all marketplaces concurrently
@@ -90,7 +91,7 @@ class GeoProductSearchEngine:
         # Calculate scores and rank
         ranked_hits = self._rank_products(all_hits)
         
-        print(f"✅ Found {len(ranked_hits)} products across all marketplaces\n")
+        print(f"? Found {len(ranked_hits)} products across all marketplaces\n")
         
         return ranked_hits[:max_results]
     
@@ -107,7 +108,7 @@ class GeoProductSearchEngine:
                     country=self.country_name,
                     max_results=15,
                     budget=budget,
-                    currency=self.currency
+                    # currency=self.currency
                 )
                 if serpapi_results:
                     print(f" SerpAPI found {len(serpapi_results)} REAL products")
@@ -123,7 +124,7 @@ class GeoProductSearchEngine:
                     country=self.country_name,
                     max_results=15,
                     budget=budget,
-                    currency=self.currency
+                    # currency=self.currency
                 )
                 if gemini_results:
                     print(f" Gemini AI found {len(gemini_results)} REAL products")
@@ -205,15 +206,14 @@ class GeoProductSearchEngine:
             image_url = f"https://via.placeholder.com/400x400/4A90E2/FFFFFF?text={image_category.replace(' ', '+')}"
             
             hit = ProductHit(
-                title=title,
+                name=title,
                 price=price,
-                currency=marketplace.currency,
+                
                 url=f"https://{marketplace.domain}/product/{random.randint(10000, 99999)}",
-                source=marketplace.name,
-                seller_name=f"{random.choice(['Official', 'Authorized', 'Verified', 'Premium', 'Certified'])} {brand} Store",
-                seller_rating=seller_rating,
-                product_rating=product_rating,
-                review_count=review_count,
+                
+                
+                
+                
                 image_url=image_url,
                 description=description
             )
@@ -267,13 +267,13 @@ class GeoProductSearchEngine:
         score = 0.0
         
         # Seller rating (40%)
-        if hit.seller_rating:
-            score += (hit.seller_rating / 5.0) * 40
+        if hit.rating:
+            score += (hit.rating / 5.0) * 40
         
         # Review count (30%)
-        if hit.review_count > 0:
+        if hit.reviews_count > 0:
             import math
-            review_score = min(math.log10(hit.review_count + 1) / 4, 1.0)
+            review_score = min(math.log10(hit.reviews_count + 1) / 4, 1.0)
             score += review_score * 30
         
         # Marketplace trust (30%)
@@ -292,13 +292,13 @@ class GeoProductSearchEngine:
         score = 0.0
         
         # Product rating (60%)
-        if hit.product_rating:
-            score += (hit.product_rating / 5.0) * 60
+        if hit.rating:
+            score += (hit.rating / 5.0) * 60
         
         # Review reliability (40%)
-        if hit.review_count > 0:
+        if hit.reviews_count > 0:
             import math
-            review_reliability = min(math.log10(hit.review_count + 1) / 4, 1.0)
+            review_reliability = min(math.log10(hit.reviews_count + 1) / 4, 1.0)
             score += review_reliability * 40
         
         return round(score, 2)
@@ -320,7 +320,7 @@ class GeoProductSearchEngine:
         if max_price == min_price:
             return 50.0
         
-        rating = hit.product_rating or 4.0
+        rating = hit.rating or 4.0
         budget = getattr(hit, 'search_budget', None)
         
         if budget and budget > 0:
@@ -473,3 +473,4 @@ async def demo_geo_search():
 
 if __name__ == "__main__":
     asyncio.run(demo_geo_search())
+

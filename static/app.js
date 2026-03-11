@@ -324,7 +324,7 @@ function createProductCard(product, rank) {
     const rankClass = rank <= 3 ? `top-${rank}` : '';
     const rankBadge = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
     
-    const stars = product.product_rating ? '⭐'.repeat(Math.round(product.product_rating)) : '';
+    const stars = product.rating ? '⭐'.repeat(Math.round(product.rating)) : '';
     
     // Check if product has a banner
     const productName = product.name || product.title;
@@ -367,11 +367,11 @@ function createProductCard(product, rank) {
             <span>${escapeHtml(product.source)}</span>
         </div>
         
-        ${product.product_rating ? `
+        ${product.rating ? `
             <div class="product-rating">
                 <span class="stars">${stars}</span>
-                <span>${product.product_rating.toFixed(1)}/5.0</span>
-                <span class="review-count">(${product.review_count} reviews)</span>
+                <span>${product.rating.toFixed(1)}/5.0</span>
+                <span class="review-count">(${product.reviews_count} reviews)</span>
             </div>
         ` : ''}
         

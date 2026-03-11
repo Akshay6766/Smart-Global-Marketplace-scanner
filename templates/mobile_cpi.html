@@ -872,7 +872,7 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     displayResults(data.results, `Search Results for "${searchQuery}"`, data.page || 1, data.total_pages || 1);
                     
                     // Update pagination if available
@@ -923,7 +923,7 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     displayResults(data.results, `Search Results for "${query}"`, data.page || 1, data.total_pages || 1);
                     if (data.page && data.total_pages) {
                         updatePaginationButtons(data.page, data.total_pages);
@@ -973,7 +973,7 @@
                 const response = await fetch('/api/mobile/stats');
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     // Hide results and sorting when showing stats
                     const resultsContainer = document.getElementById('resultsContainer');
                     const sortingControls = document.getElementById('sortingControls');
@@ -1180,6 +1180,35 @@
                 console.error('resultsContainer element not found');
             }
         }
+        function showLiveSearchSuggestion(message, query) {
+            const container = document.getElementById('resultsContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="live-search-suggestion" style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white; margin: 20px 0;">
+                        <h3 style="margin-bottom: 20px;"> No Indexed Results Found</h3>
+                        <p style="margin-bottom: 30px; font-size: 16px;">${message}</p>
+                        <button onclick="switchToLiveSearch('${query}')" style="background: #fff; color: #667eea; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">
+                             Try Live Search Now
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        function switchToLiveSearch(query) {
+            // Switch to Live Search tab
+            document.querySelector('[data-tab="live-search"]').click();
+            
+            // Fill the live search query
+            setTimeout(() => {
+                const liveSearchInput = document.getElementById('liveSearchQuery');
+                if (liveSearchInput) {
+                    liveSearchInput.value = query;
+                    // Optionally trigger the live search automatically
+                    performLiveSearch();
+                }
+            }, 100);
+        }
         
         // Load top phones on page load OR handle URL parameters
         window.addEventListener('load', function() {
@@ -1281,7 +1310,7 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     displayResults(data.results, 'Search Results', data.page, data.total_pages);
                     updatePaginationButtons(data.page, data.total_pages);
                     const sortingControls = document.getElementById('sortingControls');
@@ -1507,7 +1536,7 @@
                 
                 if (aiStatus) aiStatus.style.display = 'none';
                 
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     // Add AI response to chat
                     addChatMessage(data.response);
                     
@@ -1691,7 +1720,7 @@
                 if (budget && budget > 0) params.budget = parseFloat(budget);
                 const response = await fetch('/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) });
                 const data = await response.json();
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     // Filter results to only show exact model matches
                     let filteredResults = data.results.filter(r => isExactModelMatch(r.title, query));
                     console.log(`Filtered ${data.results.length} results to ${filteredResults.length} exact matches`);
@@ -1893,7 +1922,7 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.success) { if (data.live_search_suggestion) { showLiveSearchSuggestion(data.message, query); return; }
                     // Show success message
                     const modelName = selector.options[selector.selectedIndex].text;
                     console.log('Switched to ' + modelName);
@@ -1928,6 +1957,7 @@
 </script>
 </body>
 </html>
+
 
 
 

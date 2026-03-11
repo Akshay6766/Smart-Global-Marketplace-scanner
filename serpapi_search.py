@@ -1,4 +1,4 @@
-﻿"""
+"""
 SerpAPI Integration for Real Product Search
 Gets actual product URLs from Google Shopping
 """
@@ -124,27 +124,16 @@ class SerpAPISearch:
                     
                     # Create ProductHit
                     hit = ProductHit(
-                        title=title,
+                        name=title,
                         price=price,
-                        currency=currency,
+                        
                         url=product_url,
-                        source=source,
-                        seller_name=item.get("source", source),
-                        seller_rating=4.5,
-                        product_rating=float(rating) if rating else 4.0,
-                        review_count=int(reviews) if reviews else 100,
+                        # seller_rating=4.5,
+                        rating=float(rating) if rating else 4.0,
+                        reviews_count=int(reviews) if reviews else 100,
                         image_url=thumbnail,
                         description=item.get("snippet", "")[:200]
                     )
-                    
-                    # Add budget indicator
-                    if budget:
-                        if price <= budget:
-                            hit.best_choice_reason = f" Within budget  {rating}/5.0  {reviews} reviews  {source}"
-                        else:
-                            hit.best_choice_reason = f" Premium option  {rating}/5.0  {reviews} reviews  {source}"
-                    else:
-                        hit.best_choice_reason = f"Real product  {rating}/5.0  {reviews} reviews  {source}"
                     
                     results.append(hit)
                     
@@ -183,7 +172,7 @@ async def test_serpapi():
         return
     
     print("\nSearching for mobile phones under 20000 INR...")
-    results = await searcher.search_products("mobile phone", "India", 5, budget=20000, currency="INR")
+    results = await searcher.search_products("mobile phone", "India", 5, budget=20000)  # currency="INR"
     
     if results:
         print(f"\n Found {len(results)} products with REAL URLs:")
